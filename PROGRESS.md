@@ -77,7 +77,10 @@
   - COMMUNE orb (`#aiSummonOrb`) hidden on mobile until awakening animation completes. Added `mobile-hidden-until-awake` CSS class that fades in with `.awake` class added via `unlockTsukuyomi()` in JS.
   - Raised DL/AWS skill cards (`gaze-node--ml`) from `top:50%` to `top:32%` so they sit between the header and the Sharingan eye center — eyes are now fully unobstructed.
   - Reduced SUMMON/STOP terminal button size on mobile (from `min-height:44px` to `38px`, compact padding).
-  - COMMUNE orb sized down on mobile to `46×46px` with smaller glyph text.
+  - [x] COMMUNE orb sized down on mobile to `46×46px` with smaller glyph text.
+- [x] **Resume Synchronization (2026-09-06)**:
+  - Synchronized `public/resume.pdf` with Rishi's newly generated resume (`C:\Users\ASUS\Desktop\My Resume.pdf`), reflecting current skills, AWS certifications, and flagship projects.
+  - Verified static asset routing for direct download from header and about sections.
 
 ---
 
