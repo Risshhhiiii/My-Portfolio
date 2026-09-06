@@ -61,16 +61,19 @@ Engineered at the intersection of high-performance modern web engineering, mathe
 ### 1. Landing Screen & The Tsukuyomi Scroll-Lock
 - **Initial State**: Visitors are greeted with a closed-eye portrait of Itachi amidst ambient mist, suspended dust particles, and lightning strikes.
 - **Scroll-Lock Protection (`tsukuyomi-locked`)**: The initial page strictly locks downward scrolling. If a user attempts to scroll before awakening, the page resists with a glowing visual chakra pulse.
-- **Awaken The Reality (`解`)**: Clicking or tapping the central portal unlocks the viewport, triggers an authentic Mangekyo sound effect, launches ambient sub-bass resonance, activates the theme music at 35% master volume, and transitions into the high-frame-rate crow dispersal scroll scrubber.
+- **Awaken The Reality (`解`)**: Clicking or tapping the central portal unlocks the viewport, triggers an authentic Mangekyo sound effect, launches ambient sub-bass resonance, activates the theme music at 20% default master volume, and begins the unified single-speed cinematic awakening sequence.
 - **Reload Landing Page Reset**: Refreshing or revisiting the site immediately resets the viewport to `y = 0` with manual scroll restoration, ensuring every visitor experiences the full cinematic narrative from the start.
 
 ### 2. Tsukuyomi Awakening Scrubber (`#scrubCanvas`)
-- A synchronized 71-frame sequence (`public/frames/main/001.jpg` – `071.jpg`) scrubbed over `320vh` of normalized scroll height.
-- Utilizes `requestAnimationFrame` loops and fractional frame interpolation (`Math.floor(progress * 70) + 1`) to guarantee 60fps rendering without jank or frame drops.
+- A synchronized 71-frame sequence (`public/frames/main/001.jpg` – `071.jpg`) executed at a **unified constant velocity** (4,000ms duration across both mobile and desktop) with zero speed variations or pauses.
+- **Full Asset Preloading & Memory Decoding**: All 126 assets (71 main frames, 51 eye frames, 3 audio tracks, and Google Fonts) are preloaded and decoded into uncompressed GPU raster memory via `img.decode()` before the loading screen dismisses.
+- **Act I Fast-Path**: Eliminates forced synchronous layout thrashing by isolating frame draws and feather particles during awakening, bypassing all off-screen `getBoundingClientRect()` layout reflows.
+- **Native Compositor Transition**: As crows disperse across the screen at $p \ge 0.75$, the scroll lock is lifted and the browser's hardware-accelerated compositor smoothly glides down into `#about` at native 60/120Hz refresh rates.
 - **Forward-Only Snap**: Scrolling back up from the About section immediately renders the pristine resting portrait without rewinding animations backwards, maintaining a clean visual state.
 
 ### 3. Shinobi Lineage & Honors Scroll (`#about`)
 - An editorial Japanese minimalist chronicle honoring Rishi's academic journey, engineering achievements, and credentials.
+- **Pure Unboxed Editorial Typography**: The headline **`ENGINEERING INTELLIGENT SYSTEMS FROM THE SHADOWS.`** and its Japanese subtitle **`闇より生まれし知性`** float cleanly and directly over the subtle crimson atmospheric radial backdrop without box containers, borders, or backdrop-filter blur artifacts.
 - **Continuous Chakra Spine**: A vertical crimson glowing line linking chronological milestones with interactive rotating seal glyphs:
   - `印` **Ballari Institute of Technology and Management (BITM)** — B.E. in Artificial Intelligence & Machine Learning (2022 – 2026, CGPA: 8.44).
   - `雲` **AWS Certified Cloud Practitioner** — Amazon Web Services foundational cloud computing, serverless architectures, and IAM governance.
@@ -192,12 +195,12 @@ The portfolio embeds an intelligent conversational terminal (`#aiChatModal`) acc
 The portfolio features a custom Web Audio synthesizer and audio management system built directly into the client:
 
 - **Synthesized Lightning Thunder**: Real-time synthesized low-frequency pink noise filtered through custom Biquad filters and dynamic gain decay envelopes to simulate authentic distance-attenuated thunder claps.
-- **Synthesized Sub-bass Chakra Pulse**: An ultra-low frequency sine wave oscillator (`45Hz - 60Hz`) that pulses on Awakening to simulate the release of spiritual pressure.
-- **Authentic Soundtrack Integration**: Preloaded background score (*"Senya"* / Yasuharu Takanashi) initialized at a comfortable 35% volume.
-- **Universal Audio HUD (`#audioControlHud`)**:
+- **Synthesized Sub-bass Chakra Pulse**: An ultra-low frequency sine wave oscillator (`45Hz - 60Hz`) with exponential frequency drops, calibrated to sustain through the full 4.0s awakening sequence.
+- **Authentic Soundtrack Integration**: Preloaded background score (*"Senya"* / Yasuharu Takanashi) initialized at a comfortable 20% default volume.
+- **Universal Audio HUD (`#soundPanel`)**:
   - Master switch: `解` (Audio Unlocked) / `封` (Audio Sealed).
   - Real-time Volume Slider (`0% - 100%`).
-  - One-tap quick presets: `消音 MUTE`, `25%`, `35%`, `70%`, `100%`.
+  - One-tap quick presets: `消音 OFF`, `25%`, `35%`, `70%`, `100%`.
   - Live track display: `うちはイタチ · SENYA`.
 
 ---
@@ -206,11 +209,14 @@ The portfolio features a custom Web Audio synthesizer and audio management syste
 
 The portfolio has been optimized for all screen form factors, from compact mobile devices (320px) to ultra-wide displays (4K):
 
-1. **Dynamic Viewport Height (`100dvh`)**: Avoids the notorious mobile browser chrome jump on iOS Safari and Android Chrome by pinning frame canvases to dynamic viewport units.
-2. **Mobile Tsukuyomi Drawer**: Full-screen slide-down navigation with frosted glass, deep crimson borders, 50px touch targets, Japanese subtitles, and automatic drawer retraction upon link selection.
-3. **Zero-Latency Touch Awakening**: Dual event binding (`touchend` + `click`) with `touch-action: manipulation` and `-webkit-tap-highlight-color: transparent` to eliminate mobile 300ms tap delays.
-4. **Touch-Driven Gaze Tracking**: Touch coordinates dynamically drive Itachi's gaze tracking and Amaterasu flame manipulation across touchscreens.
-5. **Ergonomic Layout Positioning**: Skill cards on mobile are positioned to prevent visual occlusion of the Sharingan eyes.
+1. **Dynamic Viewport Height (`100dvh`)**: Avoids the mobile browser chrome jump on iOS Safari and Android Chrome by pinning frame canvases to dynamic viewport units.
+2. **Mobile Pull-to-Refresh HUD (`#mobilePullRefresh`)**: An interactive Sharingan/Akatsuki floating frosted pill that activates strictly at the top of Page 1 on mobile (`window.scrollY <= 8`). Features rubber-band touch resistance, haptic feedback vibration, rotating seal indicator, and dynamic text prompts (`PULL TO RELOAD` → `RELEASE TO RELOAD`).
+3. **Dedicated Mobile AI Terminal Layout**: Separates the typing area and action triggers into distinct, vertically stacked components. Encloses the input in a dedicated dark container with iOS auto-zoom prevention (`16px font-size`), paired with a tactile full-width 42px SUMMON/STOP button.
+4. **Mobile Tsukuyomi Drawer**: Full-screen slide-down navigation with frosted glass, deep crimson borders, 50px touch targets, Japanese subtitles, and automatic drawer retraction upon link selection.
+5. **Zero-Latency Touch Awakening**: Dual event binding (`touchend` + `click`) with `touch-action: manipulation` and `-webkit-tap-highlight-color: transparent` to eliminate mobile 300ms tap delays.
+6. **Touch-Driven Gaze Tracking**: Touch coordinates dynamically drive Itachi's gaze tracking and Amaterasu flame manipulation across touchscreens.
+7. **Mobile GPU & Compositor Optimization**: Stripped out dynamic blur filters (`filter: blur(...)`) and heavy backdrop filters on mobile to maintain rock-solid 60/120Hz scrolling throughout.
+8. **Floating Commune Orb (`#aiSummonOrb`)**: Compact floating Mangekyō orb pinned to the bottom corner, seamlessly revealing after the opening sequence concludes.
 
 ---
 
@@ -258,9 +264,11 @@ Portfolio/
 │   ├── favicon.svg             # Custom Uchiha Mangekyō Sharingan SVG favicon
 │   ├── itachi-theme.mp3        # Atmospheric background score (Senya)
 │   ├── mangekyo.mp3            # Awakening chakra release sound effect
-│   ├── sharingan.mp3           # Subtle eye activation chime
 │   ├── resume.pdf              # Rishi Raj Sharma's verified curriculum vitae
 │   ├── rishi-photo.png         # Author portrait asset
+│   ├── robots.txt              # Search crawler permissions & sitemap declaration
+│   ├── sharingan.mp3           # Subtle eye activation chime
+│   ├── sitemap.xml             # XML sitemap for Google Search Console indexing
 │   │
 │   └── frames/                 # High-resolution sequential animation frames
 │       ├── storm.jpg           # Background atmospheric storm plate
@@ -391,15 +399,16 @@ Deploying this portfolio to [Vercel](https://vercel.com/) takes less than 2 minu
 
 ---
 
-## 🌐 SEO, Social Cards & OpenGraph Telemetry
+## 🌐 SEO, Social Cards & Search Engine Telemetry
 
-The portfolio includes comprehensive SEO metadata and OpenGraph social preview tags embedded directly in `index.html`:
+The portfolio implements full search engine optimization, indexing infrastructure, and OpenGraph social preview tags:
 
-- **Title Tag**: `Rishi Raj Sharma — AI & Product Development Engineer | Uchiha Itachi Experience`
-- **Meta Description**: Curated summary detailing Rishi's AI & Machine Learning specializations, flagship projects, and BITM education.
-- **OpenGraph Protocol**: Rich social sharing cards for LinkedIn, WhatsApp, and Facebook (`og:type`, `og:title`, `og:description`, `og:image`).
-- **Twitter / X Cards**: `summary_large_image` support for clean embedded previews.
-- **JSON-LD Structured Data**: Embedded Schema.org schemas (`Person`, `WebSite`, `EducationalOrganization`) enabling search engines to parse author credentials, social links, and affiliations.
+- **Canonical URL**: Firmly anchored to production domain `https://my-portfolio-tau-navy-48.vercel.app/` across all meta and OpenGraph tags.
+- **Sitemap & Robots**: Static `public/sitemap.xml` detailing primary pages and curriculum vitae assets, paired with `public/robots.txt` declaring universal crawler allow directives.
+- **Title & Description**: Descriptive semantic titles and structured summaries detailing Rishi's AI & Machine Learning specializations, flagship projects, and BITM education.
+- **OpenGraph Protocol**: High-resolution preview cards for LinkedIn, WhatsApp, and Facebook (`og:type`, `og:title`, `og:description`, `og:image`).
+- **Twitter / X Cards**: `summary_large_image` cards optimized for platform feeds.
+- **JSON-LD Structured Data**: Embedded Schema.org schemas (`Person`, `WebSite`, `EducationalOrganization`) enabling search engine knowledge panels to parse author credentials, social links, and affiliations.
 
 ---
 
