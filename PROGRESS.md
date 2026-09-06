@@ -67,6 +67,7 @@
   - Verified SPA single-page application routing configuration in `vercel.json`.
   - Authored comprehensive, exhaustive `README.md` covering all architectural engines, lore, features, AI terminal, audio synthesis, and step-by-step Vercel deployment.
   - Configured git remotes pointing to `https://github.com/Risshhhiiii/My-Portfolio.git` for direct Vercel continuous deployment.
+  - Removed private documents (`ChatGPT Image...` and `scorereport.pdf`) from git tracking and GitHub, added to `.gitignore`, and securely preserved locally.
 - [x] **Mobile Layout Polish — Checkpoint 4 (2026-09-06)**:
   - Removed Sharingan sticky badge (`#stickyBadge`) from HTML entirely (both mobile and desktop).
   - Fixed `^C STOP` button text → replaced with proper `■ STOP` symbol (both desktop and mobile).
