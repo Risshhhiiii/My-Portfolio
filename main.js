@@ -1359,18 +1359,18 @@ function playAwakeningSound() {
     const subGain = ctx.createGain();
     sub.type = 'sine';
     sub.frequency.setValueAtTime(65, now);
-    sub.frequency.exponentialRampToValueAtTime(30, now + 2.8);
+    sub.frequency.exponentialRampToValueAtTime(28, now + 3.8);
 
     subGain.gain.setValueAtTime(0.001, now);
-    subGain.gain.exponentialRampToValueAtTime(0.55, now + 0.15);
-    subGain.gain.exponentialRampToValueAtTime(0.0001, now + 3.0);
+    subGain.gain.exponentialRampToValueAtTime(0.55, now + 0.18);
+    subGain.gain.exponentialRampToValueAtTime(0.0001, now + 4.0);
 
     sub.connect(subGain);
     subGain.connect(masterGain);
     masterGain.connect(ctx.destination);
 
     sub.start(now);
-    sub.stop(now + 3.0);
+    sub.stop(now + 4.1);
   }
 }
 
@@ -1392,15 +1392,15 @@ function startCinematicAwakening() {
   const targetY = aboutSec ? aboutSec.offsetTop : window.innerHeight;
   const startY = window.scrollY;
   const isMobile = window.innerWidth <= 860;
-  // Extended 3.2s duration so the eye opening, Sharingan spin, and full crow explosion are completely visible
-  const duration = 3200;
+  // Extended 3.8s duration for an extra smooth, majestic awakening and crow sequence
+  const duration = 3800;
   const startTime = performance.now();
 
   // Piecewise curve calibrated to the 72 frames:
   // 0% - 25%: Eyes open smoothly (frames 1 to 25)
   // 25% - 62%: Sharingan ignites, spins, and focuses (frames 25 to 52)
-  // 62% - 84%: Explosive crow dispersion across the full screen (frames 53 to 71)
-  // 84% - 100%: Holds final crow frame as the screen smoothly glides down into About
+  // 62% - 82%: Explosive crow dispersion across the full screen (frames 53 to 71)
+  // 82% - 100%: Holds final crow frame as the screen smoothly glides down into About
   function awakeningCurve(t) {
     if (t < 0.25) {
       const k = t / 0.25;
@@ -1409,8 +1409,8 @@ function startCinematicAwakening() {
       const k = (t - 0.25) / 0.37;
       const easeK = 0.5 * (1 - Math.cos(k * Math.PI));
       return 0.35 + 0.38 * easeK;
-    } else if (t < 0.84) {
-      const k = (t - 0.62) / 0.22;
+    } else if (t < 0.82) {
+      const k = (t - 0.62) / 0.20;
       return 0.73 + 0.27 * (1 - Math.pow(1 - k, 1.7));
     } else {
       return 1.0;
@@ -1430,10 +1430,10 @@ function startCinematicAwakening() {
     frameTarget = eased * (MAIN_COUNT - 1);
     frameShown = frameTarget;
 
-    // Smooth scroll transition begins ONLY after crows have erupted and are flying (progress >= 0.78)
-    if (progress >= 0.78) {
-      const sp = (progress - 0.78) / 0.22;
-      // Hermite smooth cubic ease: 3*sp^2 - 2*sp^3
+    // Smooth scroll transition begins as crows disperse across the screen (progress >= 0.76)
+    if (progress >= 0.76) {
+      const sp = (progress - 0.76) / 0.24;
+      // Hermite smooth cubic ease: 3*sp^2 - 2*sp^3 for a silky, gentle glide down
       const scrollEase = sp * sp * (3 - 2 * sp);
       window.scrollTo(0, startY + (targetY - startY) * scrollEase);
     } else if (window.scrollY > 0) {
