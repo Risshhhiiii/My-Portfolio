@@ -85,6 +85,9 @@
   - **Eliminated Mobile Opening Animation Lag**: Capped canvas DPR to 1.5 on mobile; reduced opening duration to 1500ms on mobile; bypassed redundant `window.scrollTo(0,0)` during opening sequence; eliminated expensive `filter: blur(14px)` on `.tsukuyomi-lockup.dissolved` in mobile view; and guarded `paintAmaterasu` so it is paused when off-screen or during auto-scrubbing.
   - **Default Master Volume to 20%**: Adjusted default volume from 35% to 20% across desktop and mobile headers, popover volume sliders, preset pills, and Web Audio synthesis.
   - **Separated Mobile AI Terminal & Sizing**: Split typing area and summon button into two distinct, vertically stacked components. Enclosed the input inside a dedicated dark, crimson-bordered container (`.term-input-box`) with iOS zoom protection (16px), and upgraded the SUMMON button (`.term-send-btn`) and STOP button (`.term-abort-btn`) into a tactile, full-width 42px action element with crimson chakra styling.
+- [x] **Mobile Pull-to-Refresh HUD (Scroll-Up on First Page) — Checkpoint 6 (2026-09-06)**:
+  - Added a mobile-only Pull-to-Refresh HUD (`#mobilePullRefresh`) that activates strictly at the top of the first page (`window.scrollY <= 8` on mobile screens `<= 860px`).
+  - Styled as an Akatsuki/Sharingan floating frosted pill with live rotating seal indicator, rubber-band resistance curve, haptic feedback vibration on threshold, and visual text cue (`PULL TO RELOAD` → `RELEASE TO RELOAD` → `RELOADING REALITY...`) triggering `window.location.reload()`.
 
 ---
 

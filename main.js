@@ -1496,21 +1496,123 @@ window.addEventListener('wheel', (e) => {
   }
 }, { passive: false });
 
-// Intercept touch swipe attempts on locked landing screen
+// Intercept touch swipe attempts on locked landing screen and handle mobile pull-to-refresh
+const mobilePullRefresh = document.getElementById('mobilePullRefresh');
+const pullRefreshIcon   = document.getElementById('pullRefreshIcon');
+const pullRefreshText   = document.getElementById('pullRefreshText');
+const pullRefreshJp     = document.getElementById('pullRefreshJp');
+
 let touchLandingStartY = 0;
+let touchLandingStartX = 0;
+let isPullingToRefresh = false;
+let pullDistance = 0;
+let pullThresholdMet = false;
+let hasVibrated = false;
+
 window.addEventListener('touchstart', (e) => {
-  if (e.touches && e.touches[0]) touchLandingStartY = e.touches[0].clientY;
+  if (e.touches && e.touches[0]) {
+    touchLandingStartY = e.touches[0].clientY;
+    touchLandingStartX = e.touches[0].clientX;
+  }
+  // If at the top of the first page on mobile, arm pull-to-refresh
+  if (window.innerWidth <= 860 && window.scrollY <= 8 && e.touches && e.touches[0]) {
+    isPullingToRefresh = true;
+    pullDistance = 0;
+    pullThresholdMet = false;
+    hasVibrated = false;
+    if (mobilePullRefresh) {
+      mobilePullRefresh.style.transition = 'none';
+    }
+  } else {
+    isPullingToRefresh = false;
+  }
 }, { passive: true });
 
 window.addEventListener('touchmove', (e) => {
-  if (!isAwakened && window.scrollY <= 15 && e.touches && e.touches[0]) {
-    const dy = touchLandingStartY - e.touches[0].clientY;
-    if (dy > 10 && !isAutoScrubbing) {
-      e.preventDefault();
-      pulseTsukuyomiButton();
+  if (!e.touches || !e.touches[0]) return;
+  const currentY = e.touches[0].clientY;
+  const currentX = e.touches[0].clientX;
+  const dy = touchLandingStartY - currentY; // positive = user swiped UP (scrolls down)
+  const pullDown = currentY - touchLandingStartY; // positive = user pulled DOWN (scrolls up above top)
+  const dx = Math.abs(currentX - touchLandingStartX);
+
+  // 1. Mobile Pull-to-Refresh: user scrolls up / pulls down at top of first page
+  if (isPullingToRefresh && window.innerWidth <= 860 && window.scrollY <= 5 && pullDown > 0 && pullDown > dx) {
+    pullDistance = pullDown;
+    const visualOffset = Math.min(75, Math.pow(pullDistance, 0.82) * 1.5);
+    const rotation = pullDistance * 2.8;
+
+    if (mobilePullRefresh) {
+      mobilePullRefresh.style.transform = `translate(-50%, ${visualOffset - 50}px)`;
+      mobilePullRefresh.style.opacity = String(Math.min(1, visualOffset / 35));
     }
+
+    if (pullRefreshIcon) {
+      pullRefreshIcon.style.transform = `rotate(${rotation}deg)`;
+    }
+
+    if (pullDistance >= 65) {
+      if (!pullThresholdMet) {
+        pullThresholdMet = true;
+        if (mobilePullRefresh) mobilePullRefresh.classList.add('ready');
+        if (pullRefreshText) pullRefreshText.textContent = 'RELEASE TO RELOAD';
+        if (pullRefreshJp) pullRefreshJp.textContent = '幻術解除 · 離して更新';
+        if (!hasVibrated && navigator.vibrate) {
+          try { navigator.vibrate(22); } catch (err) {}
+          hasVibrated = true;
+        }
+      }
+    } else {
+      if (pullThresholdMet) {
+        pullThresholdMet = false;
+        if (mobilePullRefresh) mobilePullRefresh.classList.remove('ready');
+        if (pullRefreshText) pullRefreshText.textContent = 'PULL TO RELOAD';
+        if (pullRefreshJp) pullRefreshJp.textContent = '現実を再同期 · SHARINGAN';
+      }
+    }
+
+    if (pullDown > 10 && e.cancelable) {
+      e.preventDefault();
+    }
+    return;
+  }
+
+  // 2. Locked Landing Screen: prevent scrolling down into About until awakened
+  if (!isAwakened && window.scrollY <= 15 && dy > 10 && !isAutoScrubbing) {
+    if (e.cancelable) e.preventDefault();
+    pulseTsukuyomiButton();
   }
 }, { passive: false });
+
+const handlePullRefreshEnd = () => {
+  if (!isPullingToRefresh || window.innerWidth > 860) return;
+  isPullingToRefresh = false;
+
+  if (pullThresholdMet) {
+    if (mobilePullRefresh) {
+      mobilePullRefresh.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease';
+      mobilePullRefresh.style.transform = 'translate(-50%, 25px)';
+      mobilePullRefresh.classList.add('refreshing');
+    }
+    if (pullRefreshText) pullRefreshText.textContent = 'RELOADING REALITY...';
+    if (pullRefreshJp) pullRefreshJp.textContent = '同期中 · REFRESHING';
+    if (pullRefreshIcon) pullRefreshIcon.classList.add('spinning');
+
+    setTimeout(() => {
+      window.location.reload();
+    }, 280);
+  } else {
+    if (mobilePullRefresh) {
+      mobilePullRefresh.style.transition = 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease';
+      mobilePullRefresh.style.transform = 'translate(-50%, -130%)';
+      mobilePullRefresh.style.opacity = '0';
+      mobilePullRefresh.classList.remove('ready');
+    }
+  }
+};
+
+window.addEventListener('touchend', handlePullRefreshEnd, { passive: true });
+window.addEventListener('touchcancel', handlePullRefreshEnd, { passive: true });
 
 // Re-lock when scrolling back up to top
 window.addEventListener('scroll', () => {
