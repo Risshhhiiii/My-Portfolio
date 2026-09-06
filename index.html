@@ -153,7 +153,7 @@
       <button class="chrome__sound" id="soundToggle" type="button"
               aria-pressed="true" title="音量設定 · Audio Controls">
         <span class="chrome__sound-jp">音</span>
-        <span class="chrome__sound-state" id="soundState">35%</span>
+        <span class="chrome__sound-state" id="soundState">20%</span>
       </button>
     </div>
 
@@ -165,7 +165,7 @@
   <div class="chrome__mobile-actions" id="mobileActions">
     <button class="chrome__mobile-sound" id="mobileSoundToggle" type="button" aria-label="Sound settings" title="音量設定">
       <span class="mobile-sound-icon">音</span>
-      <span class="mobile-sound-state" id="mobileSoundState">35%</span>
+      <span class="mobile-sound-state" id="mobileSoundState">20%</span>
     </button>
     <button class="chrome__burger" id="mobileMenuBtn" type="button" aria-label="Toggle Navigation Menu" aria-expanded="false">
       <span></span>
@@ -198,15 +198,15 @@
       <div class="sound-panel__slider-row">
         <div class="sound-slider-labels">
           <span class="slider-label">LEVEL</span>
-          <span class="sound-panel__val" id="volumeValue">35%</span>
+          <span class="sound-panel__val" id="volumeValue">20%</span>
         </div>
-        <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.35" class="sound-slider" aria-label="Master Volume Slider">
+        <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.20" class="sound-slider" aria-label="Master Volume Slider">
       </div>
 
       <!-- Quick Preset Buttons -->
       <div class="sound-presets">
         <button type="button" class="sound-preset-btn" data-vol="0">消音 OFF</button>
-        <button type="button" class="sound-preset-btn" data-vol="0.25">25%</button>
+        <button type="button" class="sound-preset-btn active" data-vol="0.20">20%</button>
         <button type="button" class="sound-preset-btn" data-vol="0.35">35%</button>
         <button type="button" class="sound-preset-btn" data-vol="0.70">70%</button>
         <button type="button" class="sound-preset-btn" data-vol="1.00">100%</button>
@@ -760,21 +760,25 @@
 
       <form class="term-input-row" id="termForm">
         <span class="term-prompt">rishi@workstation:~$</span>
-        <input 
-          type="text" 
-          id="termInput" 
-          class="term-input" 
-          placeholder="State your inquiry to Itachi... (e.g. 'Break down Rishi's microservices architecture')" 
-          autocomplete="off" 
-          spellcheck="false"
-        />
-        <button type="submit" class="term-send-btn" id="termSendBtn">
-          <span class="btn-seal">解</span>
-          <span>SUMMON</span>
-        </button>
-        <button type="button" class="term-abort-btn" id="termAbortBtn" title="Interrupt stream (Ctrl+C)" style="display: none;">
-          <span>■ STOP</span>
-        </button>
+        <div class="term-input-box">
+          <input 
+            type="text" 
+            id="termInput" 
+            class="term-input" 
+            placeholder="State your inquiry to Itachi... (e.g. 'Break down Rishi's microservices architecture')" 
+            autocomplete="off" 
+            spellcheck="false"
+          />
+        </div>
+        <div class="term-actions">
+          <button type="submit" class="term-send-btn" id="termSendBtn">
+            <span class="btn-seal">解</span>
+            <span>SUMMON</span>
+          </button>
+          <button type="button" class="term-abort-btn" id="termAbortBtn" title="Interrupt stream (Ctrl+C)" style="display: none;">
+            <span>■ STOP</span>
+          </button>
+        </div>
       </form>
     </div>
   </div>

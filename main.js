@@ -59,7 +59,8 @@ Promise.all(jobs).then(() => {
    offsetWidth/Height, not getBoundingClientRect, because these canvases carry
    CSS transforms and a transformed rect would poison the size. */
 function fitCanvas(canvas) {
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const isMobile = window.innerWidth <= 860;
+  const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2);
   const w = Math.round(canvas.offsetWidth  * dpr);
   const h = Math.round(canvas.offsetHeight * dpr);
   if (canvas.width !== w || canvas.height !== h) {
@@ -71,7 +72,8 @@ function fitCanvas(canvas) {
 /* cheap per-frame guard: layout can change without a resize event
    (mobile URL bar collapse, zoom, devtools) */
 function syncSize(canvas) {
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const isMobile = window.innerWidth <= 860;
+  const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2);
   const w = Math.round(canvas.offsetWidth * dpr);
   const h = Math.round(canvas.offsetHeight * dpr);
   return canvas.width !== w || canvas.height !== h;
@@ -419,7 +421,7 @@ const feathers = [];
 
 function seedFeathers() {
   feathers.length = 0;
-  const n = window.innerWidth < 820 ? 28 : 54;
+  const n = window.innerWidth < 820 ? 12 : 54;
   for (let i = 0; i < n; i++) {
     feathers.push({
       x: Math.random(), y: Math.random(),
@@ -742,7 +744,7 @@ function initAudio() {
 
 function getMasterVolume() {
   if (isMuted) return 0;
-  return masterVolume > 0 ? masterVolume : 0.35;
+  return masterVolume > 0 ? masterVolume : 0.20;
 }
 
 function playThunder(power = 1) {
@@ -880,9 +882,9 @@ if (!reducedMotion) stormTimer = setTimeout(strike, 1800);
 /* ── ambient theme & sound toggle ── */
 let bgThemeAudio = null;
 let isThemePlaying = false;
-let masterVolume = 0.35; // Default medium volume
+let masterVolume = 0.20; // Default 20% volume
 let isMuted = false;
-let savedVolume = 0.35;
+let savedVolume = 0.20;
 
 function initBackgroundTheme() {
   if (!bgThemeAudio) {
@@ -1044,7 +1046,7 @@ function toggleMasterChakra() {
     syncAudioUI(0, true);
   } else {
     isMuted = false;
-    masterVolume = savedVolume > 0.001 ? savedVolume : 0.35;
+    masterVolume = savedVolume > 0.001 ? savedVolume : 0.20;
     if (bgThemeAudio) {
       try { bgThemeAudio.volume = masterVolume; } catch (e) {}
     }
@@ -1130,13 +1132,19 @@ function tick() {
   readScroll();
   readScrub();
 
-  /* — Amaterasu: only paint when page is visible in foreground — */
-  if (!reduceMotion && !document.hidden) paintAmaterasu(performance.now() / 1000);
-  else if (!amaPainted) { paintAmaterasu(0); amaPainted = true; }
+  /* — Amaterasu: only paint when contact section is actually in viewport — */
+  const amaRect = amaCanvas.getBoundingClientRect();
+  const amaVisible = amaRect.top < window.innerHeight && amaRect.bottom > 0;
+  if (!reduceMotion && !document.hidden && amaVisible && !isAutoScrubbing) {
+    paintAmaterasu(performance.now() / 1000);
+  } else if (!amaPainted && amaVisible) { 
+    paintAmaterasu(0); 
+    amaPainted = true; 
+  }
 
   /* — Act I: scrubbed frames — */
   if (isAutoScrubbing) {
-    frameShown = lerp(frameShown, frameTarget, 0.22);
+    frameShown = frameTarget;
   } else {
     frameShown = 0;
     frameTarget = 0;
@@ -1314,7 +1322,7 @@ mangekyoAudio.preload = 'auto';
 
 function playAwakeningSound() {
   if (isMuted) return;
-  const vol = masterVolume > 0 ? masterVolume : 0.35;
+  const vol = masterVolume > 0 ? masterVolume : 0.20;
   const targetSFXVol = Math.min(1, Math.max(0.65, vol * 2.2));
 
   // Resume Web Audio immediately on user interaction
@@ -1383,7 +1391,8 @@ function startCinematicAwakening() {
   const aboutSec = document.getElementById('about');
   const targetY = aboutSec ? aboutSec.offsetTop : window.innerHeight;
   const startY = window.scrollY;
-  const duration = 3000; // Exact 3.0s matching the Mangekyo audio!
+  const isMobile = window.innerWidth <= 860;
+  const duration = isMobile ? 1500 : 2500; // Snappy 1.5s on mobile, cinematic 2.5s on desktop
   const startTime = performance.now();
 
   // Piecewise curve: Fast until eyes open (~0.84s, frame 27), then slower through Sharingan and crows flying
@@ -1415,7 +1424,7 @@ function startCinematicAwakening() {
       const sp = (progress - 0.55) / 0.45;
       const scrollEase = sp * sp * (3 - 2 * sp);
       window.scrollTo(0, startY + (targetY - startY) * scrollEase);
-    } else {
+    } else if (window.scrollY > 0) {
       window.scrollTo(0, 0);
     }
 
