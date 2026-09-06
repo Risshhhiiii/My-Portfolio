@@ -32,8 +32,10 @@
 - [x] Verified complete navigation, WebGL canvases, interactive gaze tracking, and dispatch form functionality in 100% muted state.
 
 ### Phase 2: AI Chatbot Integration & Visual Optimizations
-- [ ] Update `src/knowledge/context.ts` with Rishi's complete credentials and prompt rules.
-- [ ] Implement an Itachi-themed summon interface (Mangekyō / Terminal modal) on the website to launch the AI chatbot.
+- [x] Update `src/knowledge/context.ts` with Rishi's complete credentials, projects (Newsroom AI, Hospital Management Microservices, CNN Media Player), certifications (AWS CCP, JP Morgan simulation, Finacle, VISAI '26, NCC), and strict intelligence prompt rules.
+- [x] Update `src/lib/github.ts` to dynamically fetch repositories and commit events from `@Risshhhiiii`.
+- [x] Update `src/pages/Chat.tsx` terminal interface with `rishi@workstation:~$` and `Rishi Raj Sharma — Portfolio Intelligence`.
+- [ ] Implement an Itachi-themed summon interface (Mangekyō / Terminal / Scroll modal) on the website to launch the AI chatbot.
 - [ ] Optimize mobile touch interaction and canvas rendering.
 
 ### Phase 3: Review, Polish & Deployment Readiness
