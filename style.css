@@ -18,20 +18,26 @@
 }
 
 *{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{
-  background:var(--ink);
-  color:var(--bone);
-  font-family:var(--gothic);
-  overflow-x:hidden;
-  -webkit-font-smoothing:antialiased;
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+  -webkit-overflow-scrolling: touch;
 }
-::selection{background:var(--blood);color:#fff}
+body {
+  background: var(--ink);
+  color: var(--bone);
+  font-family: var(--gothic);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+::selection { background: var(--blood); color: #fff; }
 
 /* ── scrollbar ── */
-::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-track{background:#000}
-::-webkit-scrollbar-thumb{background:linear-gradient(var(--blood),#3a0409)}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #000; }
+::-webkit-scrollbar-thumb { background: linear-gradient(var(--blood), #3a0409); border-radius: 3px; }
 
 /* ═══ PRELOADER ═══ */
 .loader{
@@ -586,7 +592,18 @@ footer{
 .footer__row span:last-child{font-family:var(--serif);letter-spacing:.24em}
 
 /* scroll-driven parallax + fade (JS owns transform/opacity) */
-[data-px],.jutsu__grid .card{will-change:transform,opacity}
+[data-px], .jutsu__grid .card {
+  will-change: transform, opacity;
+}
+
+/* ═══════════ SECTION ISOLATION & SMOOTH COMPOSITING ═══════════ */
+.about,
+.eyes,
+.projects-section,
+.jutsu {
+  contain: layout style;
+  transform: translateZ(0); /* Hardware accelerated compositing layer */
+}
 
 /* ═══════════ REVEALS ═══════════ */
 [data-reveal]{
@@ -3373,9 +3390,33 @@ body.tsukuyomi-locked {
     letter-spacing: 0;
   }
 
-  /* Contact Section — ensure submit button has breathing room */
+  /* Contact Section — ensure submit button has breathing room & silky mobile scrolling */
   .jutsu {
     padding: 4.5rem 1.2rem clamp(6rem, 14vh, 10rem);
+  }
+
+  /* Eliminate expensive compositing bottlenecks on mobile */
+  .jutsu__reveal {
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+    display: none !important;
+  }
+
+  .jutsu__rain {
+    mix-blend-mode: normal !important;
+    display: none !important;
+  }
+
+  .ghost {
+    display: none !important; /* Touch has no persistent hovering cursor; disables heavy fragment shader */
+  }
+
+  .contact-reveal .channel-item,
+  .contact-reveal .scroll-form {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(14, 15, 19, 0.95) !important;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6) !important;
   }
 
   .contact-grid {

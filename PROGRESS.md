@@ -105,7 +105,17 @@
     - 0.0s – 1.4s: Gradual eye opening from darkness (`静寂` → `覚醒`).
     - 1.4s – 3.0s: Hypnotic, steady Sharingan tomoe focus and spin (`写輪眼`).
     - 3.0s – 4.0s: Explosive crow dispersion across the screen (`烏`), accompanied by forward feather particle flow and native smooth scroll down into `#about`.
-  - **Synchronized Audio & Phase Windows**: Extended Web Audio atmospheric sub-bass pulse to 4.2s to match the 4000ms cinematic sequence; calibrated caption windows (`PHASE_WINDOWS`) and feather emergence (`progress > 0.62`) to precisely align with the unified playback rate.
+    - Synchronized Audio & Phase Windows: Extended Web Audio atmospheric sub-bass pulse to 4.2s to match the 4000ms cinematic sequence; calibrated caption windows (`PHASE_WINDOWS`) and feather emergence (`progress > 0.62`) to precisely align with the unified playback rate.
+- [x] **Mobile Contact Lag Elimination & Global Desktop Scroll Smoothness — Checkpoint 11 (2026-09-06)**:
+  - **Contact Section Lag Elimination on Mobile**:
+    - Guarded RAF `tick()` loop to query layout only once per frame, passing the cached bounding rect (`jr`) directly into `paintJutsu(cachedRect)` and completely eliminating redundant `getBoundingClientRect()` reflows.
+    - Added checks preventing WebGL ghost cursor calculations (`ghost.render()`) and inline CSS custom property style writes (`--rx`, `--ry`, `--r`) on mobile devices (`window.innerWidth <= 860`), where pointer hover is non-existent and touch gestures would otherwise trigger layout invalidations during scroll.
+    - Disabled mobile touch-drag listeners on `#contact` that previously intercepted vertical touch gestures and triggered expensive WebGL draw passes on every pixel of scroll.
+    - Removed expensive mobile GPU bottlenecks on `#contact`: disabled `mix-blend-mode: screen`, simplified the contact form and channel cards to opaque backgrounds (`rgba(14, 15, 19, 0.95)`) removing heavy `backdrop-filter: blur(16px)` overhead, and disabled `.jutsu__reveal` mask rendering on small viewports.
+  - **Enhanced Desktop & Global Scroll Smoothness**:
+    - Added CSS containment (`contain: layout style;`) and hardware-accelerated compositing layers (`transform: translateZ(0);`) across all primary landmark sections (`.about`, `.eyes`, `.projects-section`, `.jutsu`), isolating rendering recalculations so scrolling one section never invalidates the rest of the 6,000px DOM tree.
+    - Configured native momentum scrolling with `-webkit-overflow-scrolling: touch;`, `scroll-padding-top: 5rem;`, and `text-rendering: optimizeLegibility;`.
+    - Enhanced in-page navigation anchors with animated, offset-aware smooth scrolling (`window.scrollTo({ behavior: 'smooth' })`) across desktop and mobile, ensuring silky transitions between all sections.
 
 ---
 

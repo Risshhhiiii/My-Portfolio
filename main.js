@@ -694,6 +694,7 @@ function setLit(on) {
 }
 
 jutsuSection.addEventListener('pointermove', e => {
+  if (e.pointerType === 'touch' || window.innerWidth <= 860) return; // Ignore touch pointers on mobile
   const r = jutsuSection.getBoundingClientRect();
   revealTX = clamp((e.clientX - r.left) / Math.max(1, r.width));
   revealTY = clamp((e.clientY - r.top) / Math.max(1, r.height));
@@ -701,12 +702,15 @@ jutsuSection.addEventListener('pointermove', e => {
   setLit(true);
 }, { passive: true });
 
-jutsuSection.addEventListener('pointerleave', () => setLit(false), { passive: true });
+jutsuSection.addEventListener('pointerleave', () => {
+  if (window.innerWidth <= 860) return;
+  setLit(false);
+}, { passive: true });
 
 // hovering contact channels or form fields opens the reveal wider
 document.querySelectorAll('#contact .channel-item, #contact .scroll-form, #contact input, #contact textarea, #contact button').forEach(el => {
-  el.addEventListener('pointerenter', () => { revealRT = 580; }, { passive: true });
-  el.addEventListener('pointerleave', () => { revealRT = 420; }, { passive: true });
+  el.addEventListener('pointerenter', () => { if (window.innerWidth > 860) revealRT = 580; }, { passive: true });
+  el.addEventListener('pointerleave', () => { if (window.innerWidth > 860) revealRT = 420; }, { passive: true });
 });
 
 /* parallax targets: heading bits carry an explicit data-px */
@@ -721,8 +725,9 @@ document.querySelectorAll('.jutsu__amaterasu').forEach(el => {
 pxItems.forEach(it => { it.el.style.opacity = '0'; });
 ghost.resize();
 
-function paintJutsu() {
-  const r = jutsuSection.getBoundingClientRect();
+function paintJutsu(cachedRect) {
+  if (!jutsuSection) return;
+  const r = cachedRect || jutsuSection.getBoundingClientRect();
   const vh = window.innerHeight;
   if (r.top > vh || r.bottom < 0) return;
 
@@ -1223,13 +1228,15 @@ function tick() {
   readScrub();
 
   /* — Amaterasu: only paint when contact section is actually in viewport — */
-  const amaRect = amaCanvas.getBoundingClientRect();
-  const amaVisible = amaRect.top < window.innerHeight && amaRect.bottom > 0;
-  if (!reduceMotion && !document.hidden && amaVisible) {
-    paintAmaterasu(performance.now() / 1000);
-  } else if (!amaPainted && amaVisible) { 
-    paintAmaterasu(0); 
-    amaPainted = true; 
+  if (amaCanvas) {
+    const amaRect = amaCanvas.getBoundingClientRect();
+    const amaVisible = amaRect.top < window.innerHeight && amaRect.bottom > 0;
+    if (!reduceMotion && !document.hidden && amaVisible) {
+      paintAmaterasu(performance.now() / 1000);
+    } else if (!amaPainted && amaVisible) { 
+      paintAmaterasu(0); 
+      amaPainted = true; 
+    }
   }
 
   /* — Act I: scrubbed frames — */
@@ -1292,18 +1299,24 @@ function tick() {
   }
 
   /* — Act III: parallax, reveal mask, ghost cursor — */
-  paintJutsu();
+  if (jutsuSection) {
+    const isMobile = window.innerWidth <= 860;
+    const jr = jutsuSection.getBoundingClientRect();
+    const jutsuVisible = jr.top < window.innerHeight && jr.bottom > 0;
 
-  const jr = jutsuSection.getBoundingClientRect();
-  if (jr.top < window.innerHeight && jr.bottom > 0) {
-    revealX = lerp(revealX, revealTX, 0.13);
-    revealY = lerp(revealY, revealTY, 0.13);
-    revealR = lerp(revealR, jutsuLit ? revealRT : 0, 0.09);
-    const rs = jutsuSection.style;
-    rs.setProperty('--rx', (revealX * 100).toFixed(2) + '%');
-    rs.setProperty('--ry', (revealY * 100).toFixed(2) + '%');
-    rs.setProperty('--r',  revealR.toFixed(0) + 'px');
-    if (ghost.ok && (jutsuLit || revealR > 1)) ghost.render();
+    if (jutsuVisible) {
+      paintJutsu(jr); // Reuse single measured rect
+      if (!isMobile) {
+        revealX = lerp(revealX, revealTX, 0.13);
+        revealY = lerp(revealY, revealTY, 0.13);
+        revealR = lerp(revealR, jutsuLit ? revealRT : 0, 0.09);
+        const rs = jutsuSection.style;
+        rs.setProperty('--rx', (revealX * 100).toFixed(2) + '%');
+        rs.setProperty('--ry', (revealY * 100).toFixed(2) + '%');
+        rs.setProperty('--r',  revealR.toFixed(0) + 'px');
+        if (ghost.ok && (jutsuLit || revealR > 1)) ghost.render();
+      }
+    }
   }
 
   /* — cursor — */
@@ -1726,11 +1739,23 @@ window.addEventListener('resize', () => {
   }
 });
 
-// Chrome Nav Links: clicking any nav link unlocks scroll immediately and closes mobile drawer
-document.querySelectorAll('.chrome__nav a').forEach(link => {
-  link.addEventListener('click', () => {
-    unlockTsukuyomi();
-    setMobileNav(false);
+// Chrome Nav Links: clicking any nav link unlocks scroll immediately, scrolls smoothly to target, and closes mobile drawer
+document.querySelectorAll('a[href^="#"]').forEach(link => {
+  link.addEventListener('click', (e) => {
+    const hash = link.getAttribute('href');
+    if (!hash || hash === '#') return;
+    const target = document.querySelector(hash);
+    if (target) {
+      e.preventDefault();
+      unlockTsukuyomi();
+      setMobileNav(false);
+      const navOffset = window.innerWidth <= 860 ? 55 : 68;
+      const targetY = Math.max(0, target.getBoundingClientRect().top + window.scrollY - navOffset);
+      window.scrollTo({
+        top: targetY,
+        behavior: 'smooth'
+      });
+    }
   });
 });
 
@@ -1747,10 +1772,10 @@ if (chromeLogo) {
   });
 }
 
-// Touch drag interaction for Amaterasu on mobile
+// Touch interaction for Amaterasu / Contact — desktop only; on mobile, bypass to preserve 60fps scrolling
 if (jutsuSection) {
   const handleJutsuTouch = (e) => {
-    if (!e.touches || !e.touches[0]) return;
+    if (window.innerWidth <= 860 || !e.touches || !e.touches[0]) return;
     const t = e.touches[0];
     const r = jutsuSection.getBoundingClientRect();
     if (t.clientY >= r.top && t.clientY <= r.bottom) {
