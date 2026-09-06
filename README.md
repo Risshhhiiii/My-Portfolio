@@ -205,18 +205,24 @@ The portfolio features a custom Web Audio synthesizer and audio management syste
 
 ---
 
-## 📱 Mobile-First Responsive Engineering
+## 📱 Mobile-First Responsive Engineering & Smoothness Architecture
 
 The portfolio has been optimized for all screen form factors, from compact mobile devices (320px) to ultra-wide displays (4K):
 
-1. **Dynamic Viewport Height (`100dvh`)**: Avoids the mobile browser chrome jump on iOS Safari and Android Chrome by pinning frame canvases to dynamic viewport units.
-2. **Mobile Pull-to-Refresh HUD (`#mobilePullRefresh`)**: An interactive Sharingan/Akatsuki floating frosted pill that activates strictly at the top of Page 1 on mobile (`window.scrollY <= 8`). Features rubber-band touch resistance, haptic feedback vibration, rotating seal indicator, and dynamic text prompts (`PULL TO RELOAD` → `RELEASE TO RELOAD`).
-3. **Dedicated Mobile AI Terminal Layout**: Separates the typing area and action triggers into distinct, vertically stacked components. Encloses the input in a dedicated dark container with iOS auto-zoom prevention (`16px font-size`), paired with a tactile full-width 42px SUMMON/STOP button.
-4. **Mobile Tsukuyomi Drawer**: Full-screen slide-down navigation with frosted glass, deep crimson borders, 50px touch targets, Japanese subtitles, and automatic drawer retraction upon link selection.
-5. **Zero-Latency Touch Awakening**: Dual event binding (`touchend` + `click`) with `touch-action: manipulation` and `-webkit-tap-highlight-color: transparent` to eliminate mobile 300ms tap delays.
-6. **Touch-Driven Gaze Tracking**: Touch coordinates dynamically drive Itachi's gaze tracking and Amaterasu flame manipulation across touchscreens.
-7. **Mobile GPU & Compositor Optimization**: Stripped out dynamic blur filters (`filter: blur(...)`) and heavy backdrop filters on mobile to maintain rock-solid 60/120Hz scrolling throughout.
-8. **Floating Commune Orb (`#aiSummonOrb`)**: Compact floating Mangekyō orb pinned to the bottom corner, seamlessly revealing after the opening sequence concludes.
+1. **Mobile Contact Page Lag Elimination**:
+   - **Single Measured Layout Query**: Replaced multiple concurrent `getBoundingClientRect()` layout calls per frame with a single cached rect passed directly to `paintJutsu(cachedRect)`, eliminating forced synchronous layout reflows during mobile scroll.
+   - **Bypassed WebGL & Style Thrashing on Mobile**: Touch screens lack hovering cursors; on viewports $\le 860\text{px}$, the WebGL ghost fragment shader and inline CSS custom property writes (`--rx`, `--ry`, `--r`) are bypassed, saving substantial GPU fill-rate.
+   - **Mobile GPU Compositing Simplification**: Replaced heavy `backdrop-filter: blur(16px)` and `mix-blend-mode: screen` in `#contact` with clean, opaque backgrounds (`rgba(14, 15, 19, 0.95)`), removing expensive offscreen render passes during scroll.
+   - **Touch Drag Decoupling**: Replaced touch listeners on `#contact` that previously intercepted scroll gestures with a desktop-only filter.
+2. **Global CSS Section Containment & Compositing**: Added `contain: layout style;` and hardware-accelerated compositing (`transform: translateZ(0);`) across all landmark sections (`.about`, `.eyes`, `.projects-section`, `.jutsu`). Layout and style calculations are strictly isolated so scrolling one section never invalidates the rest of the 6,000px DOM tree.
+3. **Silky Smooth Navigation & Momentum Scroll**: Native kinetic momentum scrolling enabled with `-webkit-overflow-scrolling: touch;`, `scroll-padding-top: 5rem;`, and animated offset-aware smooth anchor scrolling (`window.scrollTo({ behavior: 'smooth' })`) across all in-page links.
+4. **Dynamic Viewport Height (`100dvh`)**: Avoids mobile browser address-bar jump on iOS Safari and Android Chrome by pinning frame canvases to dynamic viewport units.
+5. **Mobile Pull-to-Refresh HUD (`#mobilePullRefresh`)**: An interactive Sharingan/Akatsuki floating frosted pill that activates strictly at the top of Page 1 on mobile (`window.scrollY <= 8`). Features rubber-band touch resistance, haptic feedback vibration, rotating seal indicator, and dynamic text prompts (`PULL TO RELOAD` → `RELEASE TO RELOAD`).
+6. **Dedicated Mobile AI Terminal Layout**: Separates the typing area and action triggers into distinct, vertically stacked components. Encloses the input in a dedicated dark container with iOS auto-zoom prevention (`16px font-size`), paired with a tactile full-width 42px SUMMON/STOP button.
+7. **Mobile Tsukuyomi Drawer**: Full-screen slide-down navigation with frosted glass, deep crimson borders, 50px touch targets, Japanese subtitles, and automatic drawer retraction upon link selection.
+8. **Zero-Latency Touch Awakening**: Dual event binding (`touchend` + `click`) with `touch-action: manipulation` and `-webkit-tap-highlight-color: transparent` to eliminate mobile 300ms tap delays.
+9. **Touch-Driven Gaze Tracking**: Touch coordinates dynamically drive Itachi's gaze tracking across touchscreens.
+10. **Floating Commune Orb (`#aiSummonOrb`)**: Compact floating Mangekyō orb pinned to the bottom corner, seamlessly revealing after the opening sequence concludes.
 
 ---
 
