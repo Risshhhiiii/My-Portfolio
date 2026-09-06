@@ -95,7 +95,12 @@
   - Fixed canonical URL and OpenGraph/JSON-LD structured data URLs in `index.html` to point to the live Vercel URL (`https://my-portfolio-tau-navy-48.vercel.app/`), eliminating conflicting canonical signals preventing Google indexing.
   - Generated `public/robots.txt` allowing full crawler access and declaring sitemap path.
   - Generated `public/sitemap.xml` listing main website and resume static asset.
-
+- [x] **Mobile Awakening & Transition Performance Overhaul — Checkpoint 9 (2026-09-06)**:
+  - **Full Asset Preloading & Memory Bitmap Decoding**: Synchronized all 126 assets (71 Tsukuyomi awakening frames, 51 eye-tracking frames, `/mangekyo.mp3`, `/sharingan.mp3`, `/itachi-theme.mp3`, and Google Fonts) with the initial loader progress bar; all images pre-decoded via `img.decode()` into GPU-ready raster memory so zero decoding takes place mid-animation.
+  - **Eliminated Forced Synchronous Layout Thrashing**: Isolated an Act I Fast-Path within `tick()` when `isAutoScrubbing` is active, bypassing all off-screen `getBoundingClientRect()` queries (Amaterasu, Eye tracking, Jutsu section) and guarding `readScroll()` from recalculating `scrollHeight` on every 16ms frame.
+  - **Optimized Phase Overlay Compositing**: Eliminated inline `filter: blur(...)` calculations and dynamic CSS custom property `--y` mutations across phase captions in `paintOverlays()`; replaced with direct GPU opacity and `visibility: hidden/visible` toggling.
+  - **Hardware-Accelerated Native Smooth Scroll Transition**: Replaced the 60fps manual JS `window.scrollTo` loop with a single native compositor smooth scroll `window.scrollTo({ top: targetY, behavior: 'smooth' })` triggered at `progress >= 0.76`, allowing the mobile GPU compositor to glide down into `#about` at native 60/120Hz refresh rates.
+  - **Eliminated Document Layout Shift**: Removed `height: 100vh !important` from `body.tsukuyomi-locked` and disabled mobile `backdrop-filter: blur(16px)` on `.about-quote-container` to prevent paint stalls during scroll entry.
 
 ---
 

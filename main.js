@@ -14,44 +14,89 @@ const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const window4 = (p, a, b, c, d) =>
   p < a || p > d ? 0 : p < b ? (p - a) / (b - a) : p > c ? 1 - (p - c) / (d - c) : 1;
 
-/* ───────────────────────── preload ───────────────────────── */
+/* ───────────────────────── preload & memory decoding ───────────────────────── */
 const mainFrames = [];
 const eyeFrames  = [];
 let loaded = 0;
-const total = MAIN_COUNT + EYE_COUNT;
+// Total resources: 71 main frames + 51 eye frames + 3 audio files + fonts
+const total = MAIN_COUNT + EYE_COUNT + 4;
 
 const loaderEl  = document.getElementById('loader');
 const loaderFill = document.getElementById('loaderFill');
 const loaderPct  = document.getElementById('loaderPct');
 
+function updateLoaderUI() {
+  const pct = Math.min(1, loaded / total);
+  if (loaderFill) loaderFill.style.width = (pct * 100).toFixed(1) + '%';
+  if (loaderPct) loaderPct.textContent = String(Math.round(pct * 100)).padStart(2, '0');
+}
+
 function load(src, bucket, index) {
   return new Promise(res => {
     const img = new Image();
-    img.decoding = 'async';
-    img.onload = img.onerror = () => {
+    const finish = () => {
       bucket[index] = img;
       loaded++;
-      const pct = loaded / total;
-      loaderFill.style.width = (pct * 100).toFixed(1) + '%';
-      loaderPct.textContent = String(Math.round(pct * 100)).padStart(2, '0');
+      updateLoaderUI();
       res();
     };
+
+    img.onload = () => {
+      // Pre-decode raster bitmap directly into memory ahead of time so animation never hitches
+      if ('decode' in img) {
+        img.decode().then(finish).catch(finish);
+      } else {
+        finish();
+      }
+    };
+    img.onerror = finish;
     img.src = src;
+  });
+}
+
+function loadAudio(src) {
+  return new Promise(res => {
+    const audio = new Audio();
+    audio.preload = 'auto';
+    let settled = false;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      loaded++;
+      updateLoaderUI();
+      res();
+    };
+    audio.addEventListener('canplaythrough', finish, { once: true });
+    audio.addEventListener('error', finish, { once: true });
+    audio.src = src;
+    setTimeout(finish, 1500); // Safety fallback so audio never blocks loader
   });
 }
 
 const jobs = [];
 for (let i = 1; i <= MAIN_COUNT; i++) jobs.push(load(`/frames/main/${pad(i)}.jpg`, mainFrames, i - 1));
 for (let i = 1; i <= EYE_COUNT;  i++) jobs.push(load(`/frames/eyes/${pad(i)}.jpg`, eyeFrames,  i - 1));
+jobs.push(loadAudio('/mangekyo.mp3'));
+jobs.push(loadAudio('/sharingan.mp3'));
+jobs.push(loadAudio('/itachi-theme.mp3'));
+if (document.fonts && document.fonts.ready) {
+  jobs.push(document.fonts.ready.then(() => { loaded++; updateLoaderUI(); }));
+}
 
 Promise.all(jobs).then(() => {
   setTimeout(() => {
     loaderEl.classList.add('done');
     document.body.classList.add('ready');
-    // ensure first paint is correct once fonts/layout settle
+    // Ensure first paint is correct once fonts/layout settle and warm up canvases
     resizeAll();
-    setTimeout(() => { loaderEl.style.display = 'none'; }, 1100);
-  }, 420);
+    // Warm up main canvas with frame 0
+    if (mainFrames[0]) {
+      const w = mainCanvas.width, h = mainCanvas.height;
+      drawCover(mainCtx, mainFrames[0], w, h);
+      lastDrawn = 0;
+    }
+    setTimeout(() => { loaderEl.style.display = 'none'; }, 900);
+  }, 300);
 });
 
 /* ─────────────────── canvas cover-draw helper ─────────────────── */
@@ -403,13 +448,20 @@ function paintOverlays(p) {
   if (isAutoScrubbing) {
     phases.forEach((el, i) => {
       const o = window4(p, ...PHASE_WINDOWS[i]);
-      el.style.opacity = o.toFixed(3);
-      el.style.setProperty('--y', `${((1 - o) * 34).toFixed(1)}px`);
-      el.style.filter = `blur(${((1 - o) * 7).toFixed(2)}px)`;
+      if (o <= 0.01) {
+        el.style.opacity = '0';
+        el.style.visibility = 'hidden';
+      } else {
+        el.style.visibility = 'visible';
+        el.style.opacity = o.toFixed(2);
+      }
     });
-    scrubGlow.style.opacity = (clamp((p - 0.32) / 0.16) * 0.85).toFixed(3);
+    scrubGlow.style.opacity = (clamp((p - 0.32) / 0.16) * 0.85).toFixed(2);
   } else {
-    phases.forEach(el => { el.style.opacity = '0'; });
+    phases.forEach(el => {
+      el.style.opacity = '0';
+      el.style.visibility = 'hidden';
+    });
     scrubGlow.style.opacity = '0';
   }
 }
@@ -704,6 +756,7 @@ let lastScrollY = window.scrollY;
 let scrollDir = 1, scrollVel = 0;
 
 function readScroll() {
+  if (isAutoScrubbing) return;
   const y = window.scrollY;
   const d = y - lastScrollY;
   if (Math.abs(d) > 0.4) scrollDir = d > 0 ? 1 : -1;
@@ -1129,13 +1182,50 @@ window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(resi
 let hadFeathers = false;
 
 function tick() {
+  if (isAutoScrubbing) {
+    // ── ACT I CINEMATIC AWAKENING FAST-PATH ──
+    // Zero layout queries, zero getBoundingClientRect, zero offscreen passes
+    const idx = Math.round(clamp(frameTarget, 0, MAIN_COUNT - 1));
+    if (idx !== lastDrawn) {
+      const w = mainCanvas.width, h = mainCanvas.height;
+      mainCtx.clearRect(0, 0, w, h);
+      if (drawCover(mainCtx, mainFrames[idx], w, h)) lastDrawn = idx;
+    }
+    paintOverlays(scrubProgress);
+
+    /* — feathers: fly forward only during cinematic awakening sequence — */
+    if (scrubProgress > 0.38) {
+      hadFeathers = true;
+      const fw = featherCanvas.width, fh = featherCanvas.height;
+      fCtx.clearRect(0, 0, fw, fh);
+      const fIntensity = clamp((scrubProgress - 0.38) / 0.32);
+      for (const f of feathers) {
+        f.x += f.vx * 0.005;
+        f.y += Math.sin(f.sway) * 0.001 + f.vx * 0.0015;
+        f.sway += 0.03;
+        f.rot  += f.spin * 0.8;
+        if (f.x > 1.15) f.x = -0.15;
+        if (f.x < -0.15) f.x = 1.15;
+        if (f.y > 1.15) f.y = -0.15;
+        if (f.y < -0.15) f.y = 1.15;
+        drawFeather(fCtx, f, fw, fh, 1, fIntensity);
+      }
+    } else if (hadFeathers) {
+      fCtx.clearRect(0, 0, featherCanvas.width, featherCanvas.height);
+      hadFeathers = false;
+    }
+
+    requestAnimationFrame(tick);
+    return;
+  }
+
   readScroll();
   readScrub();
 
   /* — Amaterasu: only paint when contact section is actually in viewport — */
   const amaRect = amaCanvas.getBoundingClientRect();
   const amaVisible = amaRect.top < window.innerHeight && amaRect.bottom > 0;
-  if (!reduceMotion && !document.hidden && amaVisible && !isAutoScrubbing) {
+  if (!reduceMotion && !document.hidden && amaVisible) {
     paintAmaterasu(performance.now() / 1000);
   } else if (!amaPainted && amaVisible) { 
     paintAmaterasu(0); 
@@ -1143,12 +1233,8 @@ function tick() {
   }
 
   /* — Act I: scrubbed frames — */
-  if (isAutoScrubbing) {
-    frameShown = frameTarget;
-  } else {
-    frameShown = 0;
-    frameTarget = 0;
-  }
+  frameShown = 0;
+  frameTarget = 0;
 
   const idx = Math.round(clamp(frameShown, 0, MAIN_COUNT - 1));
   if (idx !== lastDrawn) {
@@ -1158,24 +1244,7 @@ function tick() {
   }
   paintOverlays(scrubProgress);
 
-  /* — feathers: fly forward only during cinematic awakening sequence — */
-  if (isAutoScrubbing && scrubProgress > 0.38) {
-    hadFeathers = true;
-    const fw = featherCanvas.width, fh = featherCanvas.height;
-    fCtx.clearRect(0, 0, fw, fh);
-    const fIntensity = clamp((scrubProgress - 0.38) / 0.32);
-    for (const f of feathers) {
-      f.x += f.vx * 0.005;
-      f.y += Math.sin(f.sway) * 0.001 + f.vx * 0.0015;
-      f.sway += 0.03;
-      f.rot  += f.spin * 0.8;
-      if (f.x > 1.15) f.x = -0.15;
-      if (f.x < -0.15) f.x = 1.15;
-      if (f.y > 1.15) f.y = -0.15;
-      if (f.y < -0.15) f.y = 1.15;
-      drawFeather(fCtx, f, fw, fh, 1, fIntensity);
-    }
-  } else if (hadFeathers) {
+  if (hadFeathers) {
     fCtx.clearRect(0, 0, featherCanvas.width, featherCanvas.height);
     hadFeathers = false;
   }
@@ -1376,7 +1445,6 @@ function playAwakeningSound() {
 
 function startCinematicAwakening() {
   if (isAutoScrubbing) return;
-  unlockTsukuyomi();
   isAutoScrubbing = true;
 
   const lockup = document.getElementById('tsukuyomiLockup');
@@ -1389,12 +1457,9 @@ function startCinematicAwakening() {
   playAwakeningSound();
 
   const aboutSec = document.getElementById('about');
-  const targetY = aboutSec ? aboutSec.offsetTop : window.innerHeight;
-  const startY = window.scrollY;
-  const isMobile = window.innerWidth <= 860;
-  // Extended 3.8s duration for an extra smooth, majestic awakening and crow sequence
   const duration = 3800;
   const startTime = performance.now();
+  let hasTriggeredScroll = false;
 
   // Piecewise curve calibrated to the 72 frames:
   // 0% - 25%: Eyes open smoothly (frames 1 to 25)
@@ -1417,9 +1482,6 @@ function startCinematicAwakening() {
     }
   }
 
-  // Temporarily set scrollBehavior to auto so RAF window.scrollTo does not fight CSS smooth scroll
-  document.documentElement.style.scrollBehavior = 'auto';
-
   function step(currentTime) {
     const elapsed = currentTime - startTime;
     const progress = Math.min(elapsed / duration, 1);
@@ -1432,18 +1494,23 @@ function startCinematicAwakening() {
 
     // Smooth scroll transition begins as crows disperse across the screen (progress >= 0.76)
     if (progress >= 0.76) {
-      const sp = (progress - 0.76) / 0.24;
-      // Hermite smooth cubic ease: 3*sp^2 - 2*sp^3 for a silky, gentle glide down
-      const scrollEase = sp * sp * (3 - 2 * sp);
-      window.scrollTo(0, startY + (targetY - startY) * scrollEase);
-    } else if (window.scrollY > 0) {
-      window.scrollTo(0, 0);
+      if (!hasTriggeredScroll) {
+        hasTriggeredScroll = true;
+        unlockTsukuyomi();
+        document.documentElement.style.scrollBehavior = 'smooth';
+        const targetY = aboutSec ? aboutSec.offsetTop : window.innerHeight;
+        window.scrollTo({
+          top: targetY,
+          behavior: 'smooth'
+        });
+      }
     }
 
     if (progress < 1) {
       requestAnimationFrame(step);
     } else {
-      window.scrollTo(0, targetY);
+      const targetY = aboutSec ? aboutSec.offsetTop : window.innerHeight;
+      window.scrollTo({ top: targetY, behavior: 'smooth' });
       document.documentElement.style.scrollBehavior = 'smooth';
       isAutoScrubbing = false;
       hasCompletedAwakening = true;

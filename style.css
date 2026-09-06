@@ -257,9 +257,11 @@ body{
 /* phase captions */
 .phase{
   position:absolute;left:clamp(2rem,7vw,7rem);top:50%;
-  transform:translateY(calc(-50% + var(--y,0px)));
+  transform:translateY(-50%);
   opacity:0;pointer-events:none;max-width:min(30ch,42vw);
   z-index:3;text-shadow:0 2px 34px rgba(0,0,0,.95),0 0 8px rgba(0,0,0,.7);
+  will-change:opacity;
+  transition:opacity 0.25s ease;
 }
 .phase__jp{
   font-family:var(--serif);font-weight:800;
@@ -595,10 +597,9 @@ footer{
 [data-reveal].in{opacity:1;transform:none}
 
 /* ═══ TSUKUYOMI SCROLL LOCK ON LANDING ═══ */
-body.tsukuyomi-locked,
-html.tsukuyomi-locked {
+body.tsukuyomi-locked {
   overflow: hidden !important;
-  height: 100vh !important;
+  touch-action: none;
 }
 
 @keyframes btnGlowPulse {
@@ -618,17 +619,17 @@ html.tsukuyomi-locked {
   z-index: 100;
   max-width: min(78ch, 92vw);
   width: 100%;
-  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.65s cubic-bezier(0.16, 1, 0.3, 1),
-              filter 0.65s;
+  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
   text-shadow: 0 2px 40px rgba(0, 0, 0, 0.95), 0 0 16px rgba(0, 0, 0, 0.9);
 }
 
 .tsukuyomi-lockup.dissolved {
   opacity: 0 !important;
-  transform: translateX(-50%) translateY(-35px) scale(1.04) !important;
-  filter: blur(14px) !important;
+  transform: translateX(-50%) translateY(-22px) !important;
   pointer-events: none !important;
+  filter: none !important;
 }
 
 .tsukuyomi-kicker {
@@ -3114,10 +3115,16 @@ html.tsukuyomi-locked {
     left: 50%;
     top: auto;
     bottom: 16vh;
-    transform: translate(-50%, var(--y, 0px));
+    transform: translateX(-50%);
     text-align: center;
     max-width: 88vw;
     filter: none !important;
+  }
+
+  .about-quote-container {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(14, 15, 20, 0.92) !important;
   }
 
   .tsukuyomi-lockup {
