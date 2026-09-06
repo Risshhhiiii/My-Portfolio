@@ -435,13 +435,13 @@ function readScrub() {
   }
 }
 
-/* caption choreography */
-/* tuned to the footage: 1-13 closed · 14-24 opening · 25-52 sharingan · 53-71 crows */
+/* caption choreography aligned to single uniform playback speed */
+/* 0.00-0.22 closed (静寂) · 0.22-0.42 opening (覚醒) · 0.43-0.74 sharingan (写輪眼) · 0.75-1.00 crows (烏) */
 const PHASE_WINDOWS = [
-  [0.13, 0.17, 0.21, 0.25],   // 静寂
-  [0.27, 0.31, 0.37, 0.42],   // 覚醒
-  [0.45, 0.49, 0.63, 0.69],   // 写輪眼
-  [0.74, 0.79, 0.97, 1.01],   // 烏
+  [0.04, 0.08, 0.16, 0.20],   // 静寂 (Silence)
+  [0.22, 0.26, 0.36, 0.40],   // 覚醒 (Awakening)
+  [0.43, 0.48, 0.68, 0.73],   // 写輪眼 (Sharingan)
+  [0.75, 0.80, 0.94, 1.00],   // 烏 (A Thousand Crows)
 ];
 
 function paintOverlays(p) {
@@ -1193,12 +1193,12 @@ function tick() {
     }
     paintOverlays(scrubProgress);
 
-    /* — feathers: fly forward only during cinematic awakening sequence — */
-    if (scrubProgress > 0.38) {
+    /* — feathers: fly forward as crows emerge — */
+    if (scrubProgress > 0.62) {
       hadFeathers = true;
       const fw = featherCanvas.width, fh = featherCanvas.height;
       fCtx.clearRect(0, 0, fw, fh);
-      const fIntensity = clamp((scrubProgress - 0.38) / 0.32);
+      const fIntensity = clamp((scrubProgress - 0.62) / 0.28);
       for (const f of feathers) {
         f.x += f.vx * 0.005;
         f.y += Math.sin(f.sway) * 0.001 + f.vx * 0.0015;
@@ -1457,43 +1457,22 @@ function startCinematicAwakening() {
   playAwakeningSound();
 
   const aboutSec = document.getElementById('about');
-  const duration = 3800;
+  // Unified single-speed playback across mobile and desktop (3200ms = steady 22 fps)
+  const duration = 3200;
   const startTime = performance.now();
   let hasTriggeredScroll = false;
-
-  // Piecewise curve calibrated to the 72 frames:
-  // 0% - 25%: Eyes open smoothly (frames 1 to 25)
-  // 25% - 62%: Sharingan ignites, spins, and focuses (frames 25 to 52)
-  // 62% - 82%: Explosive crow dispersion across the full screen (frames 53 to 71)
-  // 82% - 100%: Holds final crow frame as the screen smoothly glides down into About
-  function awakeningCurve(t) {
-    if (t < 0.25) {
-      const k = t / 0.25;
-      return 0.35 * (1 - Math.pow(1 - k, 2.2));
-    } else if (t < 0.62) {
-      const k = (t - 0.25) / 0.37;
-      const easeK = 0.5 * (1 - Math.cos(k * Math.PI));
-      return 0.35 + 0.38 * easeK;
-    } else if (t < 0.82) {
-      const k = (t - 0.62) / 0.20;
-      return 0.73 + 0.27 * (1 - Math.pow(1 - k, 1.7));
-    } else {
-      return 1.0;
-    }
-  }
 
   function step(currentTime) {
     const elapsed = currentTime - startTime;
     const progress = Math.min(elapsed / duration, 1);
-    const eased = awakeningCurve(progress);
 
-    // Directly drive the canvas frame from the calibrated curve
-    scrubProgress = eased;
-    frameTarget = eased * (MAIN_COUNT - 1);
+    // Single constant playback speed across all 71 frames (zero speed variations)
+    scrubProgress = progress;
+    frameTarget = progress * (MAIN_COUNT - 1);
     frameShown = frameTarget;
 
-    // Smooth scroll transition begins as crows disperse across the screen (progress >= 0.76)
-    if (progress >= 0.76) {
+    // Smooth scroll transition begins as crows disperse across the screen (progress >= 0.75)
+    if (progress >= 0.75) {
       if (!hasTriggeredScroll) {
         hasTriggeredScroll = true;
         unlockTsukuyomi();

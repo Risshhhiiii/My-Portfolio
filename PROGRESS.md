@@ -99,8 +99,13 @@
   - **Full Asset Preloading & Memory Bitmap Decoding**: Synchronized all 126 assets (71 Tsukuyomi awakening frames, 51 eye-tracking frames, `/mangekyo.mp3`, `/sharingan.mp3`, `/itachi-theme.mp3`, and Google Fonts) with the initial loader progress bar; all images pre-decoded via `img.decode()` into GPU-ready raster memory so zero decoding takes place mid-animation.
   - **Eliminated Forced Synchronous Layout Thrashing**: Isolated an Act I Fast-Path within `tick()` when `isAutoScrubbing` is active, bypassing all off-screen `getBoundingClientRect()` queries (Amaterasu, Eye tracking, Jutsu section) and guarding `readScroll()` from recalculating `scrollHeight` on every 16ms frame.
   - **Optimized Phase Overlay Compositing**: Eliminated inline `filter: blur(...)` calculations and dynamic CSS custom property `--y` mutations across phase captions in `paintOverlays()`; replaced with direct GPU opacity and `visibility: hidden/visible` toggling.
-  - **Hardware-Accelerated Native Smooth Scroll Transition**: Replaced the 60fps manual JS `window.scrollTo` loop with a single native compositor smooth scroll `window.scrollTo({ top: targetY, behavior: 'smooth' })` triggered at `progress >= 0.76`, allowing the mobile GPU compositor to glide down into `#about` at native 60/120Hz refresh rates.
-  - **Eliminated Document Layout Shift & Box Artifacts**: Removed `height: 100vh !important` from `body.tsukuyomi-locked`. Completely removed the dark background box, borders, and backdrop-filter from `.about-quote-container` ("ENGINEERING INTELLIGENT SYSTEMS FROM THE SHADOWS."), allowing the Japanese editorial typography to float purely and cleanly over the subtle atmospheric radial gradient without any box container on desktop or mobile.
+- [x] **Unified Single-Speed Cinematic Awakening Pacing — Checkpoint 10 (2026-09-06)**:
+  - **Single Constant Velocity Pacing**: Replaced the non-linear piecewise easing curve (which caused noticeable accelerations, decelerations, and pauses) with a unified linear single-speed playback rate across all 71 frames on both desktop and mobile (`duration = 3200ms`, steady 22 fps).
+  - **Balanced Storytelling Distribution**: Every phase receives equal, natural timing:
+    - 0.0s – 1.1s: Gradual eye opening from darkness (`静寂` → `覚醒`).
+    - 1.1s – 2.4s: Steady, hypnotic Sharingan tomoe focus and spin (`写輪眼`).
+    - 2.4s – 3.2s: Explosive crow dispersion across the screen (`烏`), accompanied by forward feather particle flow and native smooth scroll down into `#about`.
+  - **Synchronized Phase Windows**: Calibrated caption windows (`PHASE_WINDOWS`) and feather emergence (`progress > 0.62`) to precisely align with the unified playback rate.
 
 ---
 
