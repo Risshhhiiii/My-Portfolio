@@ -121,6 +121,24 @@
   - Created `public/googlede5aab473f4aa278.html` and root `googlede5aab473f4aa278.html` containing verification token `google-site-verification: googlede5aab473f4aa278.html`.
   - Built and verified production bundling to `dist/googlede5aab473f4aa278.html`.
   - Deployed to live production site on Vercel (`https://my-portfolio-tau-navy-48.vercel.app/googlede5aab473f4aa278.html`) to ensure persistent verification.
+- [x] **Mobile Single-Highlight Strictness & Normal Scrolling Speed Restoration — Checkpoint 14 (2026-09-06)**:
+  - **Eliminated Double-Highlight State on Mobile**:
+    - Isolated desktop hover rules behind `@media (hover: hover) and (pointer: fine)`.
+    - Added an explicit reset in `@media (max-width: 860px)` (`.lineage-entry:hover:not(.active)` with `!important` overrides), ensuring that on mobile viewports no touch or cursor hover can ever trigger card illumination.
+    - Strictly guarantees that **ONLY ONE** entry (the one with `.active` calculated by the scroll position) is ever highlighted at any moment.
+- [x] **Gaze Cards Vertical Clearance & Seamless 100dvh Mobile Scroll — Checkpoint 15 (2026-09-06)**:
+  - **Lowered Newsroom AI & CNN Media Player Cards**:
+    - Repositioned `.gaze-node--tl` (Newsroom AI) and `.gaze-node--tr` (CNN Media Player) from `top: 12%` down to `top: 18.5%`.
+    - Calibrated `.skills-center-head` to `top: clamp(1.4rem, 3.2vh, 2.4rem)` and fine-tuned `.skills-sub` (`AI Systems · Deep Learning · Distributed Architecture · Cloud & QA`).
+    - The subtitle text below `TECHNICAL MASTERY` is now 100% visible across the entire screen width with zero overlap from the left or right cards.
+    - Adjusted middle cards (`.gaze-node--ml`, `.gaze-node--mr`) to `top: 34%` and bottom cards (`.gaze-node--bl`, `.gaze-node--br`) to `bottom: 22%`, maintaining balanced vertical rhythm and keeping the Sharingan eye pupils unobstructed.
+  - **Eliminated Extra Scroll Duration on Technical Mastery**:
+    - Switched `.eyes` and `.eyes__sticky` to `100dvh` on mobile viewports (`height: 100vh; height: 100dvh;`).
+    - Removed the residual `20vh` sticky hold distance (`120vh - 100vh`), completely eliminating the pause/delay in the middle of scrolling.
+    - The entire Technical Mastery section now scrolls continuously and fluidly into Projects just like a normal webpage section.
+
+
+
 
 ---
 

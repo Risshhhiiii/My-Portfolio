@@ -1867,9 +1867,79 @@ document.querySelectorAll('.p-stat-card').forEach(card => {
   });
 });
 
+// ── Interactive Shinobi Lineage & Mobile Scroll Auto-Highlight ─────────────
+const lineageEntries = Array.from(document.querySelectorAll('.lineage-entry'));
+const lineageContainer = document.querySelector('.shinobi-lineage');
+let activeLineageIndex = -1;
+
+function updateMobileLineageHighlight() {
+  if (!lineageContainer || lineageEntries.length === 0) return;
+
+  // Only run automatic scroll highlighting on mobile viewports
+  if (window.innerWidth > 860) {
+    if (activeLineageIndex !== -1) {
+      lineageEntries.forEach(entry => entry.classList.remove('active'));
+      activeLineageIndex = -1;
+    }
+    return;
+  }
+
+  const containerRect = lineageContainer.getBoundingClientRect();
+  const vh = window.innerHeight;
+
+  // If lineage section is outside the visible viewport, turn all off
+  if (containerRect.bottom < vh * 0.12 || containerRect.top > vh * 0.88) {
+    if (activeLineageIndex !== -1) {
+      lineageEntries.forEach(entry => entry.classList.remove('active'));
+      activeLineageIndex = -1;
+    }
+    return;
+  }
+
+  // Focal reading line on mobile viewport (~48% height)
+  const targetY = vh * 0.48;
+  let closestIndex = -1;
+  let minDistance = Infinity;
+
+  lineageEntries.forEach((entry, idx) => {
+    const rect = entry.getBoundingClientRect();
+    const entryCenter = rect.top + rect.height / 2;
+    const dist = Math.abs(entryCenter - targetY);
+
+    // Entry must be within active visible zone
+    if (rect.top < vh * 0.78 && rect.bottom > vh * 0.22) {
+      if (dist < minDistance) {
+        minDistance = dist;
+        closestIndex = idx;
+      }
+    }
+  });
+
+  if (closestIndex !== activeLineageIndex) {
+    activeLineageIndex = closestIndex;
+    lineageEntries.forEach((entry, idx) => {
+      if (idx === closestIndex) {
+        entry.classList.add('active');
+      } else {
+        entry.classList.remove('active');
+      }
+    });
+  }
+}
+
+// Bind to scroll, touchmove, and resize
+window.addEventListener('scroll', updateMobileLineageHighlight, { passive: true });
+window.addEventListener('touchmove', updateMobileLineageHighlight, { passive: true });
+window.addEventListener('resize', updateMobileLineageHighlight, { passive: true });
+
 // Interactive Shinobi Lineage Entry Click
-document.querySelectorAll('.lineage-entry').forEach(entry => {
+lineageEntries.forEach(entry => {
   entry.addEventListener('click', () => {
+    if (window.innerWidth <= 860) {
+      lineageEntries.forEach(e => e.classList.remove('active'));
+      entry.classList.add('active');
+      activeLineageIndex = lineageEntries.indexOf(entry);
+    }
     const title = entry.querySelector('.lineage-title')?.textContent || 'HONOR';
     const badge = entry.querySelector('.lineage-badge')?.textContent || 'SEAL';
     showAboutToast(`LINEAGE SEAL [${badge}] · ${title}`);

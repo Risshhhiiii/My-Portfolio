@@ -80,6 +80,7 @@ Engineered at the intersection of high-performance modern web engineering, mathe
   - `金` **J.P. Morgan Software Engineering Simulation** — Enterprise Kafka streaming, financial data structures, and algorithmic market pipelines.
   - `銀` **Infosys Certified Finacle Associate** — Core banking system integration, transactional compliance, and financial microservices.
   - `勝` **VISAI '26 National Hackathon Finalist** — Top-tier AI innovation honors, predictive analytics, and computer vision systems.
+- **Automatic Mobile Scroll-Highlighter**: On mobile viewports, as the user scrolls, the focal reading line (`~48%` viewport height) dynamically detects the nearest entry and illuminates it with crimson chakra, spinning seal rotation, and white text glow one-by-one. Sticky `:hover` states on touch devices are neutralized so strictly only one card highlights at any time.
 
 ### 4. Technical Mastery & Live Gaze Constellation (`#eyes`)
 - As the user scrolls into the Technical Mastery sector, Itachi's eyes pin to the screen.
@@ -95,6 +96,10 @@ Engineered at the intersection of high-performance modern web engineering, mathe
   - **Cloud & DevOps**: AWS (EC2, S3, IAM, Lambda), Docker, Git, CI/CD pipelines.
   - **Backend & Microservices**: Java, Spring Boot, Spring Cloud, Netflix Eureka, FastAPI, REST APIs, MySQL.
   - **Languages & Core CS**: Python, Java, JavaScript, TypeScript, C, Data Structures & Algorithms.
+- **Mobile Zero-Collision Architecture & 100dvh Flow**:
+  - Top cards (`NEWSROOM AI` & `CNN MEDIA PLAYER`) lowered to `top: 18.5%`, providing 100% unobstructed visibility of the header subtitle text (`AI Systems · Deep Learning · Distributed Architecture · Cloud & QA`).
+  - Pinned copy (`其の眼が追う` / *"Wherever you place your focus, his Sharingan follows."*) centered and elevated with generous clearance from the floating AI summon orb (`#aiSummonOrb`).
+  - Mobile container scaled to `100dvh`, eliminating sticky hold delays so the section scrolls continuously like a normal page.
 
 ### 5. Flagship Inventions & Shinobi Seals (`#projects`)
 - High-contrast editorial showcase featuring large Japanese numeral watermarks (`壱`, `弐`, `参`), live glowing telemetry pulses (`● ACTIVE IN REPO`), interactive Shinobi Tech Pills with hover effects, and direct GitHub links.
@@ -223,6 +228,8 @@ The portfolio has been optimized for all screen form factors, from compact mobil
 8. **Zero-Latency Touch Awakening**: Dual event binding (`touchend` + `click`) with `touch-action: manipulation` and `-webkit-tap-highlight-color: transparent` to eliminate mobile 300ms tap delays.
 9. **Touch-Driven Gaze Tracking**: Touch coordinates dynamically drive Itachi's gaze tracking across touchscreens.
 10. **Floating Commune Orb (`#aiSummonOrb`)**: Compact floating Mangekyō orb pinned to the bottom corner, seamlessly revealing after the opening sequence concludes.
+11. **Single-Active Lineage Scroll Highlighter**: Uses focal viewport reading line detection (`vh * 0.48`) paired with strict mobile hover overrides (`:hover:not(.active)` with `!important` resets), guaranteeing that at all times exactly one milestone card is highlighted sequentially during scroll without touch ghosting.
+12. **100dvh Continuous Technical Mastery Scroll**: Scales `#eyes` to exact dynamic viewport height (`100dvh`), removing artificial pinned hold distances so mobile scrolling flows continuously into Flagship Inventions like a normal webpage section.
 
 ---
 

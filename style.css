@@ -1131,7 +1131,7 @@ body.tsukuyomi-locked {
   transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.lineage-entry:hover {
+.lineage-entry.active {
   transform: translateX(8px);
 }
 
@@ -1160,14 +1160,14 @@ body.tsukuyomi-locked {
   transition: transform 0.4s;
 }
 
-.lineage-entry:hover .lineage-node {
+.lineage-entry.active .lineage-node {
   border-color: #fff;
   background: var(--blood-hot);
   box-shadow: 0 0 25px rgba(255, 43, 43, 0.95), 0 0 10px #fff;
   transform: scale(1.15);
 }
 
-.lineage-entry:hover .lineage-seal {
+.lineage-entry.active .lineage-seal {
   color: #fff;
   transform: rotate(360deg);
 }
@@ -1186,7 +1186,7 @@ body.tsukuyomi-locked {
   border-bottom: none;
 }
 
-.lineage-entry:hover .lineage-content {
+.lineage-entry.active .lineage-content {
   border-bottom-color: rgba(255, 43, 43, 0.35);
 }
 
@@ -1221,9 +1221,33 @@ body.tsukuyomi-locked {
   transition: color 0.3s, text-shadow 0.3s;
 }
 
-.lineage-entry:hover .lineage-title {
+.lineage-entry.active .lineage-title {
   color: #fff;
   text-shadow: 0 0 12px rgba(255, 255, 255, 0.35);
+}
+
+/* Desktop mouse-only hover: disabled on touch to avoid double highlights */
+@media (hover: hover) and (pointer: fine) {
+  .lineage-entry:hover {
+    transform: translateX(8px);
+  }
+  .lineage-entry:hover .lineage-node {
+    border-color: #fff;
+    background: var(--blood-hot);
+    box-shadow: 0 0 25px rgba(255, 43, 43, 0.95), 0 0 10px #fff;
+    transform: scale(1.15);
+  }
+  .lineage-entry:hover .lineage-seal {
+    color: #fff;
+    transform: rotate(360deg);
+  }
+  .lineage-entry:hover .lineage-content {
+    border-bottom-color: rgba(255, 43, 43, 0.35);
+  }
+  .lineage-entry:hover .lineage-title {
+    color: #fff;
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.35);
+  }
 }
 
 .lineage-desc {
@@ -2900,6 +2924,9 @@ body.tsukuyomi-locked {
   text-shadow: 0 0 8px rgba(255, 43, 43, 0.8);
 }
 
+.desktop-only-inline { display: inline; }
+.mobile-only-inline { display: none; }
+
 /* ═══════════ MOBILE CHROME & BURGER ═══════════ */
 .chrome__mobile-actions {
   display: none;
@@ -3011,6 +3038,9 @@ body.tsukuyomi-locked {
   .chrome__mobile-actions {
     display: flex;
   }
+
+  .desktop-only-inline { display: none !important; }
+  .mobile-only-inline { display: inline !important; }
 
   .chrome__nav {
     position: fixed;
@@ -3153,22 +3183,31 @@ body.tsukuyomi-locked {
     max-width: 320px;
   }
 
-  /* Eyes & Skills Constellation on Mobile — keep scroll exactly 120vh (original) */
+  /* Eyes & Skills Constellation on Mobile — 100dvh eliminates the extra pinned pause so it scrolls seamlessly like a normal page */
   .eyes {
-    height: 120vh;
+    height: 100vh;
+    height: 100dvh;
+  }
+  .eyes__sticky {
+    height: 100vh;
+    height: 100dvh;
   }
 
   .skills-center-head {
-    top: clamp(2rem, 4.5vh, 3.2rem);
-    width: 94vw;
+    top: clamp(1.4rem, 3.2vh, 2.4rem);
+    width: 92vw;
   }
   .skills-title {
-    font-size: clamp(1rem, 4.8vw, 1.4rem);
+    font-size: clamp(1.02rem, 4.6vw, 1.35rem);
     letter-spacing: 0.14em;
+    margin: 0.15rem 0;
   }
   .skills-sub {
-    font-size: 0.5rem;
-    letter-spacing: 0.12em;
+    font-size: clamp(0.5rem, 2.2vw, 0.58rem);
+    letter-spacing: 0.08em;
+    margin-top: 0.2rem;
+    opacity: 0.85;
+    padding: 0 0.5rem;
   }
 
   /* Shrink gaze cards to thin pill badges so the Sharingan eyes canvas stays visible */
@@ -3180,36 +3219,49 @@ body.tsukuyomi-locked {
     box-shadow: 0 4px 14px rgba(0,0,0,0.85);
   }
 
-  /* Push left cards tighter to the edge — ML between header and eye center */
-  .gaze-node--tl { top: 12%; left: 1%; }
-  .gaze-node--ml { top: 32%; left: 1%; transform: none; } /* raised: between header & center eye */
-  .gaze-node--bl { bottom: 26%; left: 1%; }              /* Cloud stays bottom-left */
+  /* Push left cards tighter to the edge — tl lowered to 18.5% so skills-sub is 100% visible */
+  .gaze-node--tl { top: 18.5%; left: 1%; }
+  .gaze-node--ml { top: 34%; left: 1%; transform: none; }
+  .gaze-node--bl { bottom: 22%; left: 1%; }
 
-  /* Push right cards tighter to the edge */
-  .gaze-node--tr { top: 12%; right: 1%; text-align: right; }
-  .gaze-node--mr { top: 32%; right: 1%; transform: none; text-align: right; } /* raised */
-  .gaze-node--br { bottom: 26%; right: 1%; text-align: right; }
+  /* Push right cards tighter to the edge — tr lowered to 18.5% so skills-sub is 100% visible */
+  .gaze-node--tr { top: 18.5%; right: 1%; text-align: right; }
+  .gaze-node--mr { top: 34%; right: 1%; transform: none; text-align: right; }
+  .gaze-node--br { bottom: 22%; right: 1%; text-align: right; }
 
   .node-badge { font-size: 0.44rem; margin-bottom: 0.1rem; letter-spacing: 0.16em; }
   .node-title { font-size: 0.62rem; margin: 0 0 0.08rem; letter-spacing: 0.04em; }
   .node-desc { display: none; }
 
-  /* Eyes copy pinned at bottom — smaller to avoid overlap */
-  .eyes__copy {
-    bottom: clamp(0.8rem, 2.8vh, 2rem);
-    width: 94vw;
-    transform: translateX(-50%);
-  }
-  .eyes__copy h2 {
-    font-size: clamp(1.1rem, 5.2vw, 1.8rem);
-  }
-  .eyes__copy p {
-    font-size: clamp(0.62rem, 2.8vw, 0.78rem);
-    margin: 0.18rem 0;
+  /* Hide mouse-tracking frame lines, corner brackets, and readout labels on mobile — eliminates collisions */
+  .eyes__frame {
+    display: none !important;
   }
 
-  .eyes__label--tr, .eyes__label--br {
-    display: none;
+  /* Eyes copy pinned at bottom — elevated and constrained to eliminate collisions with floating orb, edge borders, and projects section */
+  .eyes__copy {
+    bottom: clamp(3rem, 7.5vh, 4.4rem);
+    width: min(84vw, 320px);
+    max-width: 320px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 15;
+    padding: 0 0.4rem;
+  }
+  .eyes__copy h2 {
+    font-size: clamp(1.1rem, 4.8vw, 1.45rem);
+    margin-bottom: 0.2rem;
+  }
+  .eyes__copy p {
+    font-size: clamp(0.68rem, 2.6vw, 0.8rem);
+    line-height: 1.45;
+    margin: 0.2rem 0;
+    letter-spacing: 0.08em;
+  }
+  .eyes__note {
+    font-size: 0.52rem !important;
+    letter-spacing: 0.16em !important;
+    margin-top: 0.25rem !important;
   }
 
   /* Flagship Projects Section */
@@ -3496,6 +3548,66 @@ body.tsukuyomi-locked {
   .lineage-entry {
     padding-left: 50px;
     margin-bottom: 2.2rem;
+    transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.35s ease;
+    border-radius: 8px;
+  }
+
+  /* On mobile view, strictly neutralize all :hover states — only .active can highlight */
+  .lineage-entry:hover:not(.active) {
+    transform: none !important;
+    background: transparent !important;
+  }
+  .lineage-entry:hover:not(.active) .lineage-node {
+    border-color: rgba(255, 43, 43, 0.45) !important;
+    background: rgba(14, 10, 14, 0.95) !important;
+    box-shadow: 0 0 12px rgba(255, 43, 43, 0.25) !important;
+    transform: none !important;
+  }
+  .lineage-entry:hover:not(.active) .lineage-seal {
+    color: var(--blood-hot) !important;
+    transform: none !important;
+  }
+  .lineage-entry:hover:not(.active) .lineage-title {
+    color: var(--bone) !important;
+    text-shadow: none !important;
+  }
+  .lineage-entry:hover:not(.active) .lineage-badge {
+    color: var(--blood-hot) !important;
+    text-shadow: none !important;
+  }
+  .lineage-entry:hover:not(.active) .lineage-content {
+    border-bottom-color: rgba(255, 43, 43, 0.1) !important;
+  }
+
+  .lineage-entry.active {
+    transform: translateX(6px);
+    background: linear-gradient(90deg, rgba(255, 43, 43, 0.08) 0%, transparent 85%);
+  }
+
+  .lineage-entry.active .lineage-node {
+    border-color: #fff;
+    background: var(--blood-hot);
+    box-shadow: 0 0 22px rgba(255, 43, 43, 0.95), 0 0 8px #fff;
+    transform: scale(1.18);
+  }
+
+  .lineage-entry.active .lineage-seal {
+    color: #fff;
+    transform: rotate(360deg);
+  }
+
+  .lineage-entry.active .lineage-title {
+    color: #fff;
+    text-shadow: 0 0 14px rgba(255, 43, 43, 0.8), 0 0 5px #fff;
+  }
+
+  .lineage-entry.active .lineage-badge {
+    color: #fff;
+    text-shadow: 0 0 8px rgba(255, 43, 43, 0.8);
+  }
+
+  .lineage-entry.active .lineage-content {
+    border-bottom-color: rgba(255, 43, 43, 0.45);
   }
 
   .lineage-content {
