@@ -421,7 +421,7 @@ const feathers = [];
 
 function seedFeathers() {
   feathers.length = 0;
-  const n = window.innerWidth < 820 ? 12 : 54;
+  const n = window.innerWidth < 820 ? 30 : 54;
   for (let i = 0; i < n; i++) {
     feathers.push({
       x: Math.random(), y: Math.random(),
@@ -1159,11 +1159,11 @@ function tick() {
   paintOverlays(scrubProgress);
 
   /* — feathers: fly forward only during cinematic awakening sequence — */
-  if (isAutoScrubbing && scrubProgress > 0.45) {
+  if (isAutoScrubbing && scrubProgress > 0.38) {
     hadFeathers = true;
     const fw = featherCanvas.width, fh = featherCanvas.height;
     fCtx.clearRect(0, 0, fw, fh);
-    const fIntensity = clamp((scrubProgress - 0.45) / 0.35);
+    const fIntensity = clamp((scrubProgress - 0.38) / 0.32);
     for (const f of feathers) {
       f.x += f.vx * 0.005;
       f.y += Math.sin(f.sway) * 0.001 + f.vx * 0.0015;
@@ -1392,17 +1392,28 @@ function startCinematicAwakening() {
   const targetY = aboutSec ? aboutSec.offsetTop : window.innerHeight;
   const startY = window.scrollY;
   const isMobile = window.innerWidth <= 860;
-  const duration = isMobile ? 1500 : 2500; // Snappy 1.5s on mobile, cinematic 2.5s on desktop
+  // Extended 3.2s duration so the eye opening, Sharingan spin, and full crow explosion are completely visible
+  const duration = 3200;
   const startTime = performance.now();
 
-  // Piecewise curve: Fast until eyes open (~0.84s, frame 27), then slower through Sharingan and crows flying
+  // Piecewise curve calibrated to the 72 frames:
+  // 0% - 25%: Eyes open smoothly (frames 1 to 25)
+  // 25% - 62%: Sharingan ignites, spins, and focuses (frames 25 to 52)
+  // 62% - 84%: Explosive crow dispersion across the full screen (frames 53 to 71)
+  // 84% - 100%: Holds final crow frame as the screen smoothly glides down into About
   function awakeningCurve(t) {
-    if (t < 0.28) {
-      const k = t / 0.28;
-      return 0.38 * (1 - Math.pow(1 - k, 2)); // rapid eye opening
+    if (t < 0.25) {
+      const k = t / 0.25;
+      return 0.35 * (1 - Math.pow(1 - k, 2.2));
+    } else if (t < 0.62) {
+      const k = (t - 0.25) / 0.37;
+      const easeK = 0.5 * (1 - Math.cos(k * Math.PI));
+      return 0.35 + 0.38 * easeK;
+    } else if (t < 0.84) {
+      const k = (t - 0.62) / 0.22;
+      return 0.73 + 0.27 * (1 - Math.pow(1 - k, 1.7));
     } else {
-      const k = (t - 0.28) / 0.72;
-      return 0.38 + 0.62 * (1 - Math.pow(1 - k, 1.8)); // deliberate Sharingan spin & crow dispersion
+      return 1.0;
     }
   }
 
@@ -1419,9 +1430,10 @@ function startCinematicAwakening() {
     frameTarget = eased * (MAIN_COUNT - 1);
     frameShown = frameTarget;
 
-    // Smooth scroll transition begins as crows disperse (progress >= 0.55)
-    if (progress >= 0.55) {
-      const sp = (progress - 0.55) / 0.45;
+    // Smooth scroll transition begins ONLY after crows have erupted and are flying (progress >= 0.78)
+    if (progress >= 0.78) {
+      const sp = (progress - 0.78) / 0.22;
+      // Hermite smooth cubic ease: 3*sp^2 - 2*sp^3
       const scrollEase = sp * sp * (3 - 2 * sp);
       window.scrollTo(0, startY + (targetY - startY) * scrollEase);
     } else if (window.scrollY > 0) {
@@ -1435,8 +1447,19 @@ function startCinematicAwakening() {
       document.documentElement.style.scrollBehavior = 'smooth';
       isAutoScrubbing = false;
       hasCompletedAwakening = true;
-      fCtx.clearRect(0, 0, featherCanvas.width, featherCanvas.height);
-      hadFeathers = false;
+      // Fade out feathers smoothly instead of instantaneous harsh wipe
+      if (featherCanvas) {
+        featherCanvas.style.transition = 'opacity 0.6s ease';
+        featherCanvas.style.opacity = '0';
+        setTimeout(() => {
+          fCtx.clearRect(0, 0, featherCanvas.width, featherCanvas.height);
+          featherCanvas.style.opacity = '1';
+          featherCanvas.style.transition = '';
+          hadFeathers = false;
+        }, 650);
+      } else {
+        hadFeathers = false;
+      }
       // After entering / awakening completes, play the Itachi theme if not muted
       if (!isMuted && masterVolume > 0) {
         startBackgroundTheme();

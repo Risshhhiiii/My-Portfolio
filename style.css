@@ -3117,6 +3117,7 @@ html.tsukuyomi-locked {
     transform: translate(-50%, var(--y, 0px));
     text-align: center;
     max-width: 88vw;
+    filter: none !important;
   }
 
   .tsukuyomi-lockup {

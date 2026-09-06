@@ -88,6 +88,9 @@
 - [x] **Mobile Pull-to-Refresh HUD (Scroll-Up on First Page) — Checkpoint 6 (2026-09-06)**:
   - Added a mobile-only Pull-to-Refresh HUD (`#mobilePullRefresh`) that activates strictly at the top of the first page (`window.scrollY <= 8` on mobile screens `<= 860px`).
   - Styled as an Akatsuki/Sharingan floating frosted pill with live rotating seal indicator, rubber-band resistance curve, haptic feedback vibration on threshold, and visual text cue (`PULL TO RELOAD` → `RELEASE TO RELOAD` → `RELOADING REALITY...`) triggering `window.location.reload()`.
+- [x] **Cinematic Crows Animation & Awakening Transition Calibration — Checkpoint 7 (2026-09-06)**:
+  - **Full Crow Swarm Visibility**: Extended the awakening duration to a generous 3200ms across mobile and desktop, and pinned the viewport strictly at `y = 0` until `progress >= 0.78` so the entire crow eruption (frames 53–71) and glowing `烏 / CROWS` overlay are 100% visible on mobile.
+  - **Silky Smooth Transition Curve**: Programmed a Hermite smooth cubic easing scroll that gracefully glides down into `#about` as the crows disperse; smoothed feather particle fade-out over 600ms; and optimized mobile phase captions with `filter: none !important` to prevent GPU blur stalls.
 
 ---
 
