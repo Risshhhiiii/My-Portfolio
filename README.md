@@ -1,6 +1,6 @@
 # 🎴 Rishi Raj Sharma — Uchiha Itachi Cinematic Developer Portfolio & AI Terminal
 
-[![Vercel Deployment](https://img.shields.io/badge/Deploy-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-my--portfolio--tau--navy--48.vercel.app-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://my-portfolio-tau-navy-48.vercel.app/)
 [![Built with Vite](https://img.shields.io/badge/Bundler-Vite_6-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![TypeScript](https://img.shields.io/badge/Language-TypeScript_5.8-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![WebGL](https://img.shields.io/badge/Graphics-WebGL_2.0-990000?style=for-the-badge&logo=webgl&logoColor=white)](https://www.khronos.org/webgl/)
@@ -8,6 +8,8 @@
 [![Groq Cloud](https://img.shields.io/badge/LLM_Inference-Groq_Llama_3.3-F05A28?style=for-the-badge)](https://groq.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-crimson?style=for-the-badge)](LICENSE)
 
+> 🔴 **Live Production Showcase**: **[https://my-portfolio-tau-navy-48.vercel.app/](https://my-portfolio-tau-navy-48.vercel.app/)**  
+>
 > *"People live their lives bound by what they accept as correct and true. That is how they define 'reality'. But what does it mean to be 'correct' or 'true'? Merely vague concepts... their 'reality' may all be a mirage. Can we consider them to simply be living in their own world, shaped by their beliefs?"*  
 > — **Uchiha Itachi (うちはイタチ)**
 
@@ -377,7 +379,7 @@ Deploying this portfolio to [Vercel](https://vercel.com/) takes less than 2 minu
    - `VITE_GROQ_API_KEY` = `your_actual_groq_key`
 
 5. **Deploy**:
-   Click **"Deploy"**. Vercel will build the application in under 30 seconds and assign a global CDN domain (e.g., `https://my-portfolio-theta-five.vercel.app/`).
+   Click **"Deploy"**. Vercel will build the application in under 30 seconds and assign your production domain: **[https://my-portfolio-tau-navy-48.vercel.app/](https://my-portfolio-tau-navy-48.vercel.app/)**.
 
 6. **Single Page Application Routing**:
    The included `vercel.json` ensures that all deep links rewrite cleanly to `/index.html`:
@@ -407,6 +409,7 @@ The portfolio includes comprehensive SEO metadata and OpenGraph social preview t
 *AI & Product Development Engineer*  
 Ballari Institute of Technology and Management (BITM), Ballari, Karnataka, India  
 
+- **Live Production Showcase**: [my-portfolio-tau-navy-48.vercel.app](https://my-portfolio-tau-navy-48.vercel.app/)
 - **GitHub**: [@Risshhhiiii](https://github.com/Risshhhiiii)
 - **LinkedIn**: [linkedin.com/in/rishi-raj-sharma-9b5168344](https://www.linkedin.com/in/rishi-raj-sharma-9b5168344)
 - **Email**: [rishisharma21950@gmail.com](mailto:rishisharma21950@gmail.com)
