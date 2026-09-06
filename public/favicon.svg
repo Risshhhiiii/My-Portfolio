@@ -1,8 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="4" fill="#0c0b09"/>
-  <rect x="1" y="1" width="30" height="30" rx="3" fill="none" stroke="#c45d3e" stroke-width="1.5" opacity="0.6"/>
-  <text x="16" y="22.5" text-anchor="middle" font-family="SF Mono,Fira Code,Consolas,monospace" font-size="16" font-weight="700" letter-spacing="-0.5">
-    <tspan fill="#c45d3e">P</tspan><tspan fill="#b8976a">D</tspan>
-  </text>
-  <line x1="4" y1="28" x2="28" y2="28" stroke="#c45d3e" stroke-width="1.5" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" id="sharingan" width="300" height="300">
+	<defs>
+		<radialGradient id="gr" cx="50%" cy="50%" r="50%">
+			<stop offset="0%" stop-color="#660000"/>
+			<stop offset="50%" stop-color="#c30000"/>
+			<stop offset="100%" stop-color="#a00000"/>
+		</radialGradient>
+	</defs>
+	<circle cx="150" cy="150" r="145" fill="url(#gr)" stroke="#000" stroke-width="10" id="iris"/>
+	<path fill="#000" d="M 177.6,10.7 C 135,68.4 155.4,100.7 179.8,118.5 C 260.9,160.6 274.8,214.5 255.9,244.9 C 237.3,191.9 198,172.4 158.5,194.9 C 86.9,238.6 40.7,231.2 15.7,196.6 C 58.2,203.1 109.1,193.5 107.9,128.3 C 109.5,97.6 111.5,16.6 177.6,10.7 z" id="tomoe"/>
+	<circle cx="150" cy="150" r="20" fill="#a00000" id="center"/>
 </svg>

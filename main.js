@@ -2,6 +2,8 @@
    UCHIHA ITACHI — scroll-scrubbed frames + mouse-tracked eyes
    ═══════════════════════════════════════════════════════════ */
 
+import { askItachi, getInitializedSystemPrompt } from './src/ai/itachi-ai';
+
 const MAIN_COUNT = 71;
 const EYE_COUNT  = 51;
 const pad = n => String(n).padStart(3, '0');
@@ -739,8 +741,8 @@ function initAudio() {
 }
 
 function getMasterVolume() {
-  if (isMuted || !isThemePlaying) return 0;
-  return masterVolume;
+  if (isMuted) return 0;
+  return masterVolume > 0 ? masterVolume : 0.35;
 }
 
 function playThunder(power = 1) {
@@ -940,87 +942,172 @@ const soundWidget = document.getElementById('soundWidget');
 const soundToggle = document.getElementById('soundToggle');
 const soundState  = document.getElementById('soundState');
 const soundPanel  = document.getElementById('soundPanel');
+const soundPanelClose = document.getElementById('soundPanelClose');
 const volumeSlider = document.getElementById('volumeSlider');
 const volumeValue  = document.getElementById('volumeValue');
-const quickMuteBtn = document.getElementById('quickMuteBtn');
+const masterSoundSwitch = document.getElementById('masterSoundSwitch');
+const masterSoundSwitchText = document.getElementById('masterSoundSwitchText');
+const mobileSoundToggle = document.getElementById('mobileSoundToggle');
+const mobileSoundState  = document.getElementById('mobileSoundState');
 
-if (soundToggle && soundPanel) {
-  soundToggle.addEventListener('click', async (e) => {
-    e.stopPropagation();
-    const isOpen = soundPanel.classList.toggle('open');
-    soundPanel.setAttribute('aria-hidden', String(!isOpen));
+function syncAudioUI(vol, muted) {
+  const pct = Math.round(vol * 100);
+  const pctText = `${pct}%`;
+  if (volumeValue) volumeValue.textContent = pctText;
+  if (volumeSlider) volumeSlider.value = vol;
 
-    const ctx = initAudio();
-    if (ctx && ctx.state === 'suspended') await ctx.resume();
+  if (mobileSoundState) {
+    mobileSoundState.textContent = muted ? 'OFF' : pctText;
+  }
+  if (soundState) {
+    soundState.textContent = muted ? 'OFF' : pctText;
+  }
+  if (soundToggle) {
+    soundToggle.setAttribute('aria-pressed', String(!muted));
+  }
 
-    if (!isThemePlaying) {
-      startBackgroundTheme();
+  // Update Master Switch button
+  if (masterSoundSwitch) {
+    if (muted || vol <= 0.001) {
+      masterSoundSwitch.classList.remove('active');
+      masterSoundSwitch.classList.add('muted');
+      const seal = masterSoundSwitch.querySelector('.switch-seal');
+      if (seal) seal.textContent = '封';
+      if (masterSoundSwitchText) masterSoundSwitchText.textContent = 'AUDIO OFF';
+    } else {
+      masterSoundSwitch.classList.add('active');
+      masterSoundSwitch.classList.remove('muted');
+      const seal = masterSoundSwitch.querySelector('.switch-seal');
+      if (seal) seal.textContent = '解';
+      if (masterSoundSwitchText) masterSoundSwitchText.textContent = 'AUDIO ON';
+    }
+  }
+
+  // Update preset buttons highlight
+  document.querySelectorAll('.sound-preset-btn').forEach(btn => {
+    const bVol = parseFloat(btn.dataset.vol);
+    if (!isNaN(bVol)) {
+      if (muted && bVol === 0) {
+        btn.classList.add('active');
+      } else if (!muted && Math.abs(bVol - vol) < 0.05) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
     }
   });
+}
 
-  soundPanel.addEventListener('click', e => e.stopPropagation());
+function toggleSoundPanel(open) {
+  if (!soundPanel) return;
+  const willOpen = typeof open === 'boolean' ? open : !soundPanel.classList.contains('open');
+  soundPanel.classList.toggle('open', willOpen);
+  soundPanel.setAttribute('aria-hidden', String(!willOpen));
 
-  document.addEventListener('click', () => {
-    if (soundPanel.classList.contains('open')) {
-      soundPanel.classList.remove('open');
-      soundPanel.setAttribute('aria-hidden', 'true');
+  const ctx = initAudio();
+  if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
+}
+
+function setMasterVolumeLevel(val) {
+  const clamped = Math.max(0, Math.min(1, val));
+  initBackgroundTheme();
+  masterVolume = clamped;
+  if (clamped <= 0.001) {
+    isMuted = true;
+    if (bgThemeAudio) {
+      try { bgThemeAudio.volume = 0; } catch (e) {}
     }
+    syncAudioUI(0, true);
+  } else {
+    isMuted = false;
+    savedVolume = clamped;
+    if (bgThemeAudio) {
+      try { bgThemeAudio.volume = clamped; } catch (e) {}
+    }
+    if (!isThemePlaying) startBackgroundTheme();
+    syncAudioUI(clamped, false);
+  }
+}
+
+function toggleMasterChakra() {
+  initBackgroundTheme();
+  const ctx = initAudio();
+  if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
+
+  if (!isMuted && masterVolume > 0.001) {
+    savedVolume = masterVolume;
+    masterVolume = 0;
+    isMuted = true;
+    if (bgThemeAudio) {
+      try { bgThemeAudio.volume = 0; } catch (e) {}
+    }
+    syncAudioUI(0, true);
+  } else {
+    isMuted = false;
+    masterVolume = savedVolume > 0.001 ? savedVolume : 0.35;
+    if (bgThemeAudio) {
+      try { bgThemeAudio.volume = masterVolume; } catch (e) {}
+    }
+    syncAudioUI(masterVolume, false);
+    startBackgroundTheme();
+  }
+}
+
+// Sound toggle buttons open the Audio HUD Popover
+if (soundToggle) {
+  soundToggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleSoundPanel();
+  });
+}
+
+if (mobileSoundToggle) {
+  mobileSoundToggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleSoundPanel();
+  });
+}
+
+if (soundPanelClose) {
+  soundPanelClose.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleSoundPanel(false);
+  });
+}
+
+if (masterSoundSwitch) {
+  masterSoundSwitch.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleMasterChakra();
   });
 }
 
 if (volumeSlider) {
   volumeSlider.addEventListener('input', (e) => {
-    const val = parseFloat(e.target.value);
-    masterVolume = val;
-    initBackgroundTheme();
-    if (bgThemeAudio) {
-      bgThemeAudio.volume = val;
-    }
-    if (volumeValue) {
-      volumeValue.textContent = `${Math.round(val * 100)}%`;
-    }
-    if (val === 0) {
-      isMuted = true;
-      if (quickMuteBtn) quickMuteBtn.textContent = '🔊 UNMUTE';
-      if (soundState) soundState.textContent = 'OFF';
-      if (soundToggle) soundToggle.setAttribute('aria-pressed', 'false');
-    } else {
-      isMuted = false;
-      savedVolume = val;
-      if (quickMuteBtn) quickMuteBtn.textContent = '🔇 MUTE';
-      if (!isThemePlaying) startBackgroundTheme();
-      if (soundState) soundState.textContent = 'ON';
-      if (soundToggle) soundToggle.setAttribute('aria-pressed', 'true');
-    }
+    setMasterVolumeLevel(parseFloat(e.target.value));
   });
 }
 
-if (quickMuteBtn) {
-  quickMuteBtn.addEventListener('click', () => {
-    initBackgroundTheme();
-    if (!isMuted && masterVolume > 0) {
-      savedVolume = masterVolume;
-      masterVolume = 0;
-      isMuted = true;
-      if (bgThemeAudio) bgThemeAudio.volume = 0;
-      if (volumeSlider) volumeSlider.value = 0;
-      if (volumeValue) volumeValue.textContent = '0%';
-      quickMuteBtn.textContent = '🔊 UNMUTE';
-      if (soundState) soundState.textContent = 'OFF';
-      if (soundToggle) soundToggle.setAttribute('aria-pressed', 'false');
-    } else {
-      isMuted = false;
-      masterVolume = savedVolume > 0 ? savedVolume : 0.35;
-      if (bgThemeAudio) bgThemeAudio.volume = masterVolume;
-      if (volumeSlider) volumeSlider.value = masterVolume;
-      if (volumeValue) volumeValue.textContent = `${Math.round(masterVolume * 100)}%`;
-      quickMuteBtn.textContent = '🔇 MUTE';
-      if (soundState) soundState.textContent = 'ON';
-      if (soundToggle) soundToggle.setAttribute('aria-pressed', 'true');
-      startBackgroundTheme();
+// Preset Buttons (0%, 25%, 35%, 70%, 100%)
+document.querySelectorAll('.sound-preset-btn').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const v = parseFloat(btn.dataset.vol);
+    if (!isNaN(v)) {
+      setMasterVolumeLevel(v);
     }
   });
+});
+
+if (soundPanel) {
+  soundPanel.addEventListener('click', e => e.stopPropagation());
 }
+
+document.addEventListener('click', () => {
+  if (soundPanel && soundPanel.classList.contains('open')) {
+    toggleSoundPanel(false);
+  }
+});
 
 /* ═════════════════════ resize ═════════════════════ */
 function resizeAll() {
@@ -1167,6 +1254,20 @@ const io = new IntersectionObserver(entries => {
 }, { threshold: 0.18 });
 document.querySelectorAll('[data-reveal]').forEach(el => io.observe(el));
 
+// Ensure reload ALWAYS resets to the top landing page
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
+
+window.scrollTo(0, 0);
+if (window.location.hash) {
+  history.replaceState(null, document.title, window.location.pathname + window.location.search);
+}
+
+window.addEventListener('beforeunload', () => {
+  window.scrollTo(0, 0);
+});
+
 /* ═════════════════════ CINEMATIC AWAKENING PORTAL & TSUKUYOMI LOCK ═════════════════════ */
 let isAutoScrubbing = false;
 let isAwakened = false;
@@ -1177,20 +1278,27 @@ function lockTsukuyomi() {
   isAwakened = false;
   document.body.classList.add('tsukuyomi-locked');
   document.documentElement.classList.add('tsukuyomi-locked');
+  const lockup = document.getElementById('tsukuyomiLockup');
+  if (lockup) {
+    lockup.classList.remove('dissolved');
+    lockup.style.pointerEvents = 'auto';
+  }
 }
 
 function unlockTsukuyomi() {
   isAwakened = true;
   document.body.classList.remove('tsukuyomi-locked');
   document.documentElement.classList.remove('tsukuyomi-locked');
+  // On mobile: reveal the commune/AI orb whenever the user moves past the hero screen
+  if (window.innerWidth <= 860) {
+    const orb = document.getElementById('aiSummonOrb');
+    if (orb) orb.classList.add('awake');
+  }
 }
 
-// Initial state: If at top of page, lock scrolling so user must click the button to enter
-if (window.scrollY <= 15) {
-  lockTsukuyomi();
-} else {
-  isAwakened = true;
-}
+// Initial state: Always start locked on the hero landing screen
+lockTsukuyomi();
+window.scrollTo(0, 0);
 
 function pulseTsukuyomiButton() {
   const btn = document.getElementById('enterGenjutsuBtn');
@@ -1201,17 +1309,25 @@ function pulseTsukuyomiButton() {
   }
 }
 
-function playAwakeningSound() {
-  const vol = getMasterVolume();
-  if (vol <= 0.001) return; // Completely silent if muted
+const mangekyoAudio = new Audio('/mangekyo.mp3');
+mangekyoAudio.preload = 'auto';
 
-  const targetSFXVol = Math.min(1, vol * 2.5);
+function playAwakeningSound() {
+  if (isMuted) return;
+  const vol = masterVolume > 0 ? masterVolume : 0.35;
+  const targetSFXVol = Math.min(1, Math.max(0.65, vol * 2.2));
+
+  // Resume Web Audio immediately on user interaction
+  const ctx = initAudio();
+  if (ctx && ctx.state === 'suspended') {
+    ctx.resume().catch(() => {});
+  }
 
   // 1. Play authentic Mangekyo Sharingan sound effect
   try {
-    const audio = new Audio('/mangekyo.mp3');
-    audio.volume = targetSFXVol;
-    const playPromise = audio.play();
+    mangekyoAudio.currentTime = 0;
+    mangekyoAudio.volume = targetSFXVol;
+    const playPromise = mangekyoAudio.play();
     if (playPromise !== undefined) {
       playPromise.catch(() => {
         const fb = new Audio('/mangekio_sharingan.mp3.mpeg');
@@ -1226,9 +1342,7 @@ function playAwakeningSound() {
   } catch (e) {}
 
   // 2. Synthesize deep atmospheric sub-bass pulse scaled to volume
-  const ctx = initAudio();
   if (ctx) {
-    if (ctx.state === 'suspended') ctx.resume();
     const now = ctx.currentTime;
     const masterGain = ctx.createGain();
     masterGain.gain.setValueAtTime(vol, now);
@@ -1240,7 +1354,7 @@ function playAwakeningSound() {
     sub.frequency.exponentialRampToValueAtTime(30, now + 2.8);
 
     subGain.gain.setValueAtTime(0.001, now);
-    subGain.gain.exponentialRampToValueAtTime(0.42, now + 0.15);
+    subGain.gain.exponentialRampToValueAtTime(0.55, now + 0.15);
     subGain.gain.exponentialRampToValueAtTime(0.0001, now + 3.0);
 
     sub.connect(subGain);
@@ -1318,7 +1432,15 @@ function startCinematicAwakening() {
       if (!isMuted && masterVolume > 0) {
         startBackgroundTheme();
       }
+      // On mobile: reveal the commune orb now that the cinematic is done
+      if (window.innerWidth <= 860) {
+        const orb = document.getElementById('aiSummonOrb');
+        if (orb) {
+          orb.classList.add('awake');
+        }
+      }
     }
+
   }
 
   requestAnimationFrame(step);
@@ -1326,11 +1448,17 @@ function startCinematicAwakening() {
 
 const enterGenjutsuBtn = document.getElementById('enterGenjutsuBtn');
 if (enterGenjutsuBtn) {
-  enterGenjutsuBtn.addEventListener('click', (e) => {
+  let touchAwakened = false;
+  const triggerAwakening = (e) => {
+    if (touchAwakened) return;
+    touchAwakened = true;
+    setTimeout(() => { touchAwakened = false; }, 800);
     e.preventDefault();
     e.stopPropagation();
     startCinematicAwakening();
-  });
+  };
+  enterGenjutsuBtn.addEventListener('click', triggerAwakening);
+  enterGenjutsuBtn.addEventListener('touchend', triggerAwakening, { passive: false });
 }
 
 // Keyboard shortcut: Space or Enter triggers awakening when on landing screen
@@ -1382,10 +1510,47 @@ window.addEventListener('scroll', () => {
   }
 }, { passive: true });
 
-// Chrome Nav Links: clicking any nav link unlocks scroll immediately
+// Mobile navigation drawer toggle
+const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+const mobileDrawerClose = document.getElementById('mobileDrawerClose');
+const chromeNav = document.querySelector('.chrome__nav');
+
+function setMobileNav(open) {
+  if (!chromeNav) return;
+  const willOpen = typeof open === 'boolean' ? open : !chromeNav.classList.contains('open');
+  chromeNav.classList.toggle('open', willOpen);
+  if (mobileMenuBtn) {
+    mobileMenuBtn.classList.toggle('active', willOpen);
+    mobileMenuBtn.setAttribute('aria-expanded', String(willOpen));
+  }
+}
+
+if (mobileMenuBtn) {
+  mobileMenuBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    setMobileNav();
+  });
+}
+
+if (mobileDrawerClose) {
+  mobileDrawerClose.addEventListener('click', (e) => {
+    e.stopPropagation();
+    setMobileNav(false);
+  });
+}
+
+// Close mobile drawer on resize to desktop
+window.addEventListener('resize', () => {
+  if (window.innerWidth > 860 && chromeNav && chromeNav.classList.contains('open')) {
+    setMobileNav(false);
+  }
+});
+
+// Chrome Nav Links: clicking any nav link unlocks scroll immediately and closes mobile drawer
 document.querySelectorAll('.chrome__nav a').forEach(link => {
   link.addEventListener('click', () => {
     unlockTsukuyomi();
+    setMobileNav(false);
   });
 });
 
@@ -1394,11 +1559,29 @@ const chromeLogo = document.getElementById('chromeLogo') || document.querySelect
 if (chromeLogo) {
   chromeLogo.addEventListener('click', () => {
     unlockTsukuyomi();
+    setMobileNav(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setTimeout(() => {
       if (window.scrollY <= 5) lockTsukuyomi();
     }, 600);
   });
+}
+
+// Touch drag interaction for Amaterasu on mobile
+if (jutsuSection) {
+  const handleJutsuTouch = (e) => {
+    if (!e.touches || !e.touches[0]) return;
+    const t = e.touches[0];
+    const r = jutsuSection.getBoundingClientRect();
+    if (t.clientY >= r.top && t.clientY <= r.bottom) {
+      revealTX = clamp((t.clientX - r.left) / Math.max(1, r.width));
+      revealTY = clamp((t.clientY - r.top) / Math.max(1, r.height));
+      ghost.move(revealTX, revealTY, true);
+      setLit(true);
+    }
+  };
+  jutsuSection.addEventListener('touchstart', handleJutsuTouch, { passive: true });
+  jutsuSection.addEventListener('touchmove', handleJutsuTouch, { passive: true });
 }
 
 /* ═════════════════════ SKILLS & PROJECTS GAZE HOVER ═════════════════════ */
@@ -1421,27 +1604,376 @@ document.querySelectorAll('.gaze-node').forEach(node => {
   });
 });
 
-/* ═════════════════════ CONTACT FORM DISPATCH ═════════════════════ */
+/* ═════════════════════ ABOUT SECTION INTERACTIVITY & PARALLAX ═════════════════════ */
+const aboutSectionEl = document.getElementById('about');
+const aboutBackdropKanji = document.querySelector('.about-backdrop-kanji');
+
+if (aboutSectionEl && aboutBackdropKanji) {
+  aboutSectionEl.addEventListener('mousemove', (e) => {
+    const rect = aboutSectionEl.getBoundingClientRect();
+    const nx = (e.clientX - rect.left) / rect.width - 0.5;
+    const ny = (e.clientY - rect.top) / rect.height - 0.5;
+    aboutBackdropKanji.style.transform = `translate3d(${(-nx * 35).toFixed(1)}px, ${(-ny * 25).toFixed(1)}px, 0)`;
+  });
+
+  aboutSectionEl.addEventListener('mouseleave', () => {
+    aboutBackdropKanji.style.transform = 'translate3d(0, 0, 0)';
+    aboutBackdropKanji.style.transition = 'transform 0.6s ease';
+  });
+
+  aboutSectionEl.addEventListener('mouseenter', () => {
+    aboutBackdropKanji.style.transition = 'none';
+  });
+}
+
+// Interactive toast notification for About interactions
+let activeToastTimeout = null;
+function showAboutToast(message) {
+  let toast = document.getElementById('shinobiToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'shinobiToast';
+    toast.className = 'shinobi-toast';
+    document.body.appendChild(toast);
+  }
+  toast.innerHTML = `<span class="toast-seal">印</span> <span>${escapeHtml(message)}</span>`;
+  toast.classList.add('visible');
+  
+  if (activeToastTimeout) clearTimeout(activeToastTimeout);
+  activeToastTimeout = setTimeout(() => {
+    toast.classList.remove('visible');
+  }, 2800);
+}
+
+// Interactive Shinobi Tech Tags Click
+document.querySelectorAll('.shinobi-tech-tag').forEach(tag => {
+  tag.addEventListener('click', () => {
+    const tech = tag.dataset.tech || tag.textContent.trim();
+    showAboutToast(`SHINOBI ARSENAL: ${tech} verified`);
+  });
+});
+
+// Interactive Philosophy Stat Cards Click
+document.querySelectorAll('.p-stat-card').forEach(card => {
+  card.addEventListener('click', () => {
+    const val = card.querySelector('.p-stat-val')?.textContent || '';
+    const label = card.querySelector('.p-stat-label')?.textContent || '';
+    showAboutToast(`TELEMETRY VERIFIED // ${label}: ${val}`);
+  });
+});
+
+// Interactive Shinobi Lineage Entry Click
+document.querySelectorAll('.lineage-entry').forEach(entry => {
+  entry.addEventListener('click', () => {
+    const title = entry.querySelector('.lineage-title')?.textContent || 'HONOR';
+    const badge = entry.querySelector('.lineage-badge')?.textContent || 'SEAL';
+    showAboutToast(`LINEAGE SEAL [${badge}] · ${title}`);
+  });
+});
+
+// Interactive Project Tech Pills Click
+document.querySelectorAll('.shinobi-pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    const tech = pill.dataset.tech || pill.textContent.trim();
+    showAboutToast(`PROJECT STACK // ${tech} active`);
+  });
+});
+
+// Project Entry Watermark Parallax
+document.querySelectorAll('.project-entry').forEach(entry => {
+  const wm = entry.querySelector('.project-entry__watermark');
+  if (wm) {
+    entry.addEventListener('mousemove', (e) => {
+      const rect = entry.getBoundingClientRect();
+      const nx = (e.clientX - rect.left) / rect.width - 0.5;
+      const ny = (e.clientY - rect.top) / rect.height - 0.5;
+      wm.style.transform = `translate3d(${(nx * 20).toFixed(1)}px, ${(ny * 15).toFixed(1)}px, 0)`;
+    });
+    entry.addEventListener('mouseleave', () => {
+      wm.style.transform = 'translate3d(0, 0, 0)';
+      wm.style.transition = 'transform 0.5s ease';
+    });
+    entry.addEventListener('mouseenter', () => {
+      wm.style.transition = 'none';
+    });
+  }
+});
+
+/* ═════════════════════ CONTACT FORM DISPATCH (DIRECT AJAX TO EMAIL) ═════════════════════ */
 const contactForm = document.getElementById('contactForm');
 const formStatus = document.getElementById('formStatus');
 
 if (contactForm) {
-  contactForm.addEventListener('submit', (e) => {
+  contactForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const name = document.getElementById('contactName')?.value || '';
-    const email = document.getElementById('contactEmail')?.value || '';
-    const msg = document.getElementById('contactMsg')?.value || '';
+    const nameInput = document.getElementById('contactName');
+    const emailInput = document.getElementById('contactEmail');
+    const msgInput = document.getElementById('contactMsg');
+    const submitBtn = contactForm.querySelector('.transmit-btn');
 
-    // Audio cue
-    playThunder(0.85);
+    const name = nameInput?.value.trim() || '';
+    const email = emailInput?.value.trim() || '';
+    const msg = msgInput?.value.trim() || '';
 
-    if (formStatus) {
-      formStatus.innerHTML = `<span style="color: #ff4a3c; font-weight: bold;">✓ TRANSMISSION SEALED — DISPATCHING CROW TO RISHI RAJ SHARMA</span>`;
+    if (!name || !email || !msg) return;
+
+    // UI Loading state
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `
+        <span class="transmit-seal">印</span>
+        <span class="transmit-text">COMMUNING GATEWAY...</span>
+      `;
     }
 
-    const mailtoUrl = `mailto:rishisharma21950@gmail.com?subject=${encodeURIComponent('Alliance Inquiry from ' + name)}&body=${encodeURIComponent(msg + '\n\nFrom: ' + name + ' (' + email + ')')}`;
-    setTimeout(() => {
+    if (formStatus) {
+      formStatus.style.color = 'var(--blood-hot)';
+      formStatus.innerHTML = `<span>[GATEWAY ACTIVE]: SUMMONING CROW TRANSMISSION TO RISHI RAJ SHARMA...</span>`;
+    }
+
+    // Audio cue
+    playThunder(0.7);
+
+    try {
+      const response = await fetch('https://formsubmit.co/ajax/rishisharma21950@gmail.com', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          name: name,
+          email: email,
+          message: msg,
+          _subject: `[Tsukuyomi Portfolio] Transmission from ${name}`,
+          _template: 'box',
+          _captcha: 'false'
+        })
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (response.ok && (data.success === 'true' || data.success === true || data.message || response.status === 200)) {
+        if (formStatus) {
+          formStatus.style.color = '#7ee787';
+          formStatus.innerHTML = `<strong>✓ DISPATCH TRANSMITTED:</strong> Message delivered directly to Rishi Raj Sharma's inbox (<span style="color: #fff;">rishisharma21950@gmail.com</span>).`;
+        }
+        contactForm.reset();
+        showAboutToast(`TRANSMISSION DELIVERED TO RISHI RAJ SHARMA`);
+      } else {
+        throw new Error(data.message || 'Form transmission error.');
+      }
+    } catch (err) {
+      console.warn('FormSubmit AJAX fallback to mailto:', err);
+      if (formStatus) {
+        formStatus.style.color = '#ffb703';
+        formStatus.innerHTML = `<span>[FALLBACK ENGAGED]: Routing dispatch through direct transmission stream...</span>`;
+      }
+      // Fallback to mailto so user message is never lost
+      const mailtoUrl = `mailto:rishisharma21950@gmail.com?subject=${encodeURIComponent('Tsukuyomi Transmission from ' + name)}&body=${encodeURIComponent(msg + '\n\nFrom: ' + name + ' (' + email + ')')}`;
       window.location.href = mailtoUrl;
-    }, 750);
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `
+          <span class="transmit-seal">印</span>
+          <span class="transmit-text">SUMMON TRANSMISSION</span>
+          <span class="transmit-arrow">→</span>
+        `;
+      }
+    }
   });
 }
+
+/* ═══════════════════════════════════════════════════════════
+   ACT IV — TSUKUYOMI INTELLIGENCE TERMINAL CONTROLLER
+   ═══════════════════════════════════════════════════════════ */
+const termScreen = document.getElementById('termScreen');
+const termForm = document.getElementById('termForm');
+const termInput = document.getElementById('termInput');
+const termSendBtn = document.getElementById('termSendBtn');
+const termAbortBtn = document.getElementById('termAbortBtn');
+const termProviderTag = document.getElementById('termProviderTag');
+const aiStatusBadge = document.getElementById('aiStatusBadge');
+const aiSummonOrb = document.getElementById('aiSummonOrb');
+
+let chatHistory = [];
+let isGenerating = false;
+let currentAbortController = null;
+
+// Initial greeting & boot sequence
+function initTerminal() {
+  if (!termScreen) return;
+  
+  termScreen.innerHTML = `
+    <div class="term-msg term-msg--boot">
+      <div>RS-WORKSTATION BIOS v4.20 · 2026.09.06 · ALL SUBSYSTEMS NOMINAL</div>
+      <div>NEURAL INGESTION: GITHUB @Risshhhiiii · KNOWLEDGE BASE: 7.8k TOKENS SYNCED</div>
+      <div>ENGINE: GEMINI // 3.6-FLASH · FALLBACK: GROQ INFERENCE</div>
+    </div>
+    <div class="term-msg term-msg--bot">
+      <div class="bot-tag"><span>印</span> ITACHI UCHIHA // GUARDIAN INTELLIGENCE</div>
+      <div class="bot-body">Tsukuyomi link established. I am Itachi — guardian of Rishi Raj Sharma's architecture, distributed microservices, and neural vision telemetry.
+
+State your inquiry or select a chakra seal above. I measure engineering truth, not pleasantries.</div>
+    </div>
+  `;
+
+  // Pre-initialize system prompt
+  getInitializedSystemPrompt().catch(() => {});
+}
+
+initTerminal();
+
+// Floating Summon Orb Click
+if (aiSummonOrb) {
+  aiSummonOrb.addEventListener('click', () => {
+    unlockTsukuyomi();
+    const intelligenceSection = document.getElementById('intelligence');
+    if (intelligenceSection) {
+      intelligenceSection.scrollIntoView({ behavior: 'smooth' });
+      setTimeout(() => {
+        termInput?.focus();
+        const terminal = document.getElementById('shinobiTerminal');
+        if (terminal) {
+          terminal.style.boxShadow = '0 0 50px rgba(255, 43, 43, 0.7)';
+          setTimeout(() => { terminal.style.boxShadow = ''; }, 1200);
+        }
+      }, 700);
+    }
+  });
+}
+
+// Quick Chakra Seals
+document.querySelectorAll('.seal-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const query = btn.getAttribute('data-query');
+    if (query && !isGenerating) {
+      playThunder(0.5);
+      if (termInput) termInput.value = query;
+      handleSendMessage(query);
+    }
+  });
+});
+
+// Format bot response (markdown headers, italics, code, and bolding)
+function formatResponseText(text) {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*([^\*\n]+)\*/g, '<em style="color: #ff7b72;">$1</em>')
+    .replace(/`([^`]+)`/g, '<code style="background: rgba(255,43,43,0.15); padding: 2px 6px; border-radius: 4px; color: #ff7b72; font-family: monospace;">$1</code>')
+    .replace(/^([A-Z\s\-_]{3,}):/gm, '<strong style="color: #ff5e52; letter-spacing: 0.12em; display: block; margin-top: 0.5rem;">$1:</strong>')
+    .replace(/─{4,}/g, '<span style="color: rgba(255,43,43,0.3); display: block; margin: 0.4rem 0;">───────────────────────────</span>');
+}
+
+// Send Message Handler
+async function handleSendMessage(promptText) {
+  const text = (promptText || termInput?.value || '').trim();
+  if (!text || isGenerating) return;
+
+  if (termInput) termInput.value = '';
+  isGenerating = true;
+
+  // UI state for generating
+  if (termSendBtn) termSendBtn.style.display = 'none';
+  if (termAbortBtn) termAbortBtn.style.display = 'inline-flex';
+  if (termInput) termInput.disabled = true;
+
+  // Append user message
+  const userMsgEl = document.createElement('div');
+  userMsgEl.className = 'term-msg term-msg--user';
+  userMsgEl.innerHTML = `<span class="user-prompt-tag">rishi@workstation:~$</span><span>${escapeHtml(text)}</span>`;
+  termScreen.appendChild(userMsgEl);
+
+  // Append bot placeholder
+  const botMsgEl = document.createElement('div');
+  botMsgEl.className = 'term-msg term-msg--bot';
+  botMsgEl.innerHTML = `
+    <div class="bot-tag"><span>印</span> ITACHI UCHIHA</div>
+    <div class="bot-body"><span class="term-loading-indicator">COMMUNING WITH SHADOWS...</span><span class="cursor-blink"></span></div>
+  `;
+  termScreen.appendChild(botMsgEl);
+  termScreen.scrollTop = termScreen.scrollHeight;
+
+  const botBody = botMsgEl.querySelector('.bot-body');
+  currentAbortController = new AbortController();
+
+  try {
+    const result = await askItachi(text, {
+      history: chatHistory,
+      signal: currentAbortController.signal,
+      onProviderChange: (provider) => {
+        if (termProviderTag) termProviderTag.textContent = `[ENGINE: ${provider}]`;
+        if (aiStatusBadge) aiStatusBadge.textContent = `SHADOW ORCHESTRATOR ONLINE // ${provider}`;
+      },
+      onChunk: (_chunk, accumulated) => {
+        if (botBody) {
+          botBody.innerHTML = formatResponseText(accumulated) + '<span class="cursor-blink"></span>';
+          termScreen.scrollTop = termScreen.scrollHeight;
+        }
+      }
+    });
+
+    if (botBody) {
+      botBody.innerHTML = formatResponseText(result.text);
+    }
+
+    // Save to history
+    chatHistory.push({ id: Math.random().toString(36), role: 'user', content: text });
+    chatHistory.push({ id: Math.random().toString(36), role: 'assistant', content: result.text });
+
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      if (botBody) {
+        botBody.innerHTML += '<br><span style="color: #ffb703; font-size: 0.8rem;">[SESSION INTERRUPTED BY USER (^C)]</span>';
+      }
+    } else {
+      if (botBody) {
+        botBody.innerHTML = `<span style="color: #ff4a3c;">[ERROR]: ${err.message || 'Transmission failed.'}</span>`;
+      }
+    }
+  } finally {
+    isGenerating = false;
+    currentAbortController = null;
+    if (termSendBtn) termSendBtn.style.display = 'inline-flex';
+    if (termAbortBtn) termAbortBtn.style.display = 'none';
+    if (termInput) {
+      termInput.disabled = false;
+      termInput.focus();
+    }
+    termScreen.scrollTop = termScreen.scrollHeight;
+  }
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// Form Submit
+if (termForm) {
+  termForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    handleSendMessage();
+  });
+}
+
+// Abort Button Click
+if (termAbortBtn) {
+  termAbortBtn.addEventListener('click', () => {
+    currentAbortController?.abort();
+  });
+}
+
+// Keyboard shortcuts (Ctrl+C to abort)
+if (termInput) {
+  termInput.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.key === 'c') {
+      e.preventDefault();
+      currentAbortController?.abort();
+    }
+  });
+}
+

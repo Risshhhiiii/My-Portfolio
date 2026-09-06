@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { SYSTEM_PROMPT } from '../knowledge/context';
 import { fetchGithubContext } from '../lib/github';
+import { getItachiOfflineTelemetry } from '../ai/itachi-ai';
 import './Chat.css';
 
 interface Message {
@@ -54,7 +55,7 @@ async function streamGemini(
   }));
 
   const url =
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse&key=${apiKey}`;
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:streamGenerateContent?alt=sse&key=${apiKey}`;
 
   const res = await fetch(url, {
     method: 'POST',
@@ -63,7 +64,7 @@ async function streamGemini(
     body: JSON.stringify({
       contents,
       systemInstruction: { parts: [{ text: systemPrompt }] },
-      generationConfig: { temperature: 0.65, maxOutputTokens: 512 },
+      generationConfig: { temperature: 0.65, maxOutputTokens: 2048 },
     }),
   });
 
@@ -106,11 +107,11 @@ async function streamGroq(
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
     signal,
     body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
+      model: 'qwen/qwen3.6-27b',
       messages: [{ role: 'system', content: systemPrompt }, ...history],
       stream: true,
       temperature: 0.65,
-      max_tokens: 512,
+      max_tokens: 2048,
     }),
   });
 
@@ -193,7 +194,7 @@ export const Chat: React.FC = () => {
       setSystemPrompt(SYSTEM_PROMPT.replace('{GITHUB_CONTEXT}', ctx));
       setMessages([{
         id: uid(), role: 'assistant',
-        content: 'JARVIS online. All systems nominal.\nPortfolio data loaded. GitHub context synced.\nState your query.',
+        content: 'Tsukuyomi link established. All systems operational.\nKnowledge base synchronized with Rishi Raj Sharma\'s architecture.\nState your query.',
       }]);
     });
   }, []);
@@ -261,9 +262,10 @@ export const Chat: React.FC = () => {
       setStreaming('');
     } catch (err: unknown) {
       if (err instanceof Error && err.name === 'AbortError') return;
+      const fallbackContent = getItachiOfflineTelemetry(text);
       setMessages(prev => [...prev, {
         id: uid(), role: 'assistant',
-        content: `[ERR] ${err instanceof Error ? err.message : 'unknown'}\nBoth providers failed or no API key set.`,
+        content: fallbackContent,
       }]);
       setStreaming('');
     } finally {

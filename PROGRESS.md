@@ -33,15 +33,49 @@
 
 ### Phase 2: AI Chatbot Integration & Visual Optimizations
 - [x] Update `src/knowledge/context.ts` with Rishi's complete credentials, projects (Newsroom AI, Hospital Management Microservices, CNN Media Player), certifications (AWS CCP, JP Morgan simulation, Finacle, VISAI '26, NCC), and strict intelligence prompt rules.
-- [x] Update `src/lib/github.ts` to dynamically fetch repositories and commit events from `@Risshhhiiii`.
-- [x] Update `src/pages/Chat.tsx` terminal interface with `rishi@workstation:~$` and `Rishi Raj Sharma — Portfolio Intelligence`.
-- [ ] Implement an Itachi-themed summon interface (Mangekyō / Terminal / Scroll modal) on the website to launch the AI chatbot.
-- [ ] Optimize mobile touch interaction and canvas rendering.
+- [x] Calibrate AI persona in `src/knowledge/context.ts` with balanced introductory narrative, high-level project overviews for general queries, and exhaustive on-demand technical deep dives.
+- [x] Configured zero-cost dual provider orchestration (`gemini-3.6-flash` primary + `groq/qwen3.6-27b` / `compound` fallback) with real-time SSE streaming.
+- [x] Built **Offline Tsukuyomi Shadow Cache (`OFFLINE // SHADOW-CACHE`)** providing graceful, in-character pre-defined telemetry when APIs encounter rate limits, token exhaustion, or connection rifts.
+- [x] Implemented Quick Chakra Seals (`[ 壱 · BLUEPRINT ]`, `[ 弐 · NEWSROOM AI ]`, `[ 参 · SPRING CLOUD ]`, `[ 四 · AWS ]`, `[ 伍 · PHILOSOPHY ]`) and floating Mangekyō AI summon orb (`#aiSummonOrb`).
+- [x] Verified live browser streaming responses, balanced profile overviews, deep telemetry drill-downs, and seamless Itachi dark aesthetic.
 
 ### Phase 3: Review, Polish & Deployment Readiness
-- [ ] Sound synthesizer & accessibility adjustments.
-- [ ] SEO, meta descriptions, and OpenGraph tags.
-- [ ] Production build and deployment validation.
+- [x] **Shinobi Lineage & Honors Redesign**: Replaced boxy card containers with a sleek, non-boxy editorial **Shinobi Lineage & Honors Scroll** featuring a continuous crimson chakra spine, floating rotating seal nodes (`印`, `雲`, `金`, `銀`, `勝`), authentic Japanese calligraphy badge tags, and a minimalist Philosophy HUD bar.
+- [x] **Projects Section Interactivity & Shinobi Seals**: Upgraded the Flagship Inventions (`#projects`) section with interactive Shinobi Tech Pills (`術 FastAPI`, `眼 DistilRoBERTa NLP`, `印 Gemini API`, `核 Spring Boot`, `門 Gateway`, `視 OpenCV`, `網 2D CNNs`), live glowing telemetry pulses (`●`), large numeral watermark parallax, and GitHub summon buttons.
+- [x] **Default Audio Activation (35% Volume)**: Enabled audio by default (`isMuted = false`, `masterVolume = 0.35`, sound toggle `音 ON`), preloaded the Mangekyo sound effect (`/mangekyo.mp3`), and guaranteed that clicking **AWAKEN THE REALITY** immediately plays the authentic Mangekyo Sharingan sound effect accompanied by synthesized sub-bass and background theme.
+- [x] **Reload Landing Page Reset**: Guaranteed that page reload/refresh automatically directs to the top landing screen (`y = 0`) with closed eyes and `tsukuyomi-locked` state (`history.scrollRestoration = 'manual'`, hash strip, and initial lock enforcement).
+- [x] **Contact Form Direct Email Dispatch**: Upgraded `#contactForm` to serverless AJAX FormSubmit (`https://formsubmit.co/ajax/rishisharma21950@gmail.com`) with real-time status feedback, loader state, success notification, input reset, and reliable `mailto:` fallback.
+- [x] **SEO, OpenGraph, Twitter Cards & JSON-LD Structured Data**: Implemented comprehensive search indexing metadata, high-resolution OpenGraph preview tags, Twitter/X summary cards, canonical links, and Schema.org (`Person`, `WebSite`, `EducationalOrganization`) JSON-LD graph.
+- [x] **Mobile & Touch Refinements**: Built a mobile-first responsive architecture:
+  - Added a dedicated mobile header with brand badge, quick sound toggle (`#mobileSoundToggle`, displaying `音 35%`), and an animated Tsukuyomi hamburger button (`#mobileMenuBtn`).
+  - Created a full-screen Tsukuyomi slide-down drawer with frosted glass, deep crimson borders, large 50px touch targets, Japanese subtitles, and automatic drawer closing on link navigation.
+  - Hardened touch devices with `touch-action: manipulation; -webkit-tap-highlight-color: transparent;` to eliminate tap delay.
+  - Bound dual touch-listeners (`touchend` + `click`) for the Tsukuyomi awakening button, guaranteeing immediate zero-latency awakening on iPhone and Android.
+  - Enabled mobile touch dragging on the Amaterasu flame canvas (`#contact`) and eye-gaze tracking (`#eyes`).
+- [x] **Universal Audio HUD & Volume Level Controls**: Upgraded the sound button on both desktop and mobile to open a comprehensive Audio Control HUD featuring:
+  - Direct **AUDIO ON / AUDIO OFF** master chakra switch (`解` / `封`).
+  - Interactive smooth volume slider (`0%` to `100%`) with real-time level readout.
+  - One-tap quick presets (`消音 OFF`, `25%`, `35%`, `70%`, `100%`).
+  - Track indicator ("うちはイタチ · SENYA").
+- [x] **Technical Mastery & Sharingan Gaze Visibility Restoration**:
+  - Expanded `.eyes` scroll height to `220vh`, allowing visitors ample pinned scroll time to observe Itachi's eyes tracking their gaze across skills.
+  - Anchored `.eyes__copy` (`其の眼が追う` / *"Wherever you place your focus, his Sharingan follows."*) at the viewport bottom with high z-index and laser drop-shadows.
+  - Positioned `.skills-center-head` (`TECHNICAL MASTERY`) at the top above the eyes.
+  - Eliminated premature clipping by the Projects section, making the entire constellation, eyes canvas, and quote 100% visible and unblocked.
+- [x] Production deployment validation:
+  - Verified local production build (`npm run build`) passing in 802ms with zero errors.
+  - Verified SPA single-page application routing configuration in `vercel.json`.
+  - Authored comprehensive, exhaustive `README.md` covering all architectural engines, lore, features, AI terminal, audio synthesis, and step-by-step Vercel deployment.
+  - Configured git remotes pointing to `https://github.com/Risshhhiiii/My-Portfolio.git` for direct Vercel continuous deployment.
+- [x] **Mobile Layout Polish — Checkpoint 4 (2026-09-06)**:
+  - Removed Sharingan sticky badge (`#stickyBadge`) from HTML entirely (both mobile and desktop).
+  - Fixed `^C STOP` button text → replaced with proper `■ STOP` symbol (both desktop and mobile).
+  - Fixed black gap below first animation on mobile: switched `.scrub` and `.scrub__sticky` from `100vh` to `100dvh` on mobile (accounts for mobile browser chrome).
+  - Eliminated duplicate X button: `chrome__drawer-close` permanently hidden (`display:none!important`) — burger already animates into X when active; no second X needed.
+  - COMMUNE orb (`#aiSummonOrb`) hidden on mobile until awakening animation completes. Added `mobile-hidden-until-awake` CSS class that fades in with `.awake` class added via `unlockTsukuyomi()` in JS.
+  - Raised DL/AWS skill cards (`gaze-node--ml`) from `top:50%` to `top:32%` so they sit between the header and the Sharingan eye center — eyes are now fully unobstructed.
+  - Reduced SUMMON/STOP terminal button size on mobile (from `min-height:44px` to `38px`, compact padding).
+  - COMMUNE orb sized down on mobile to `46×46px` with smaller glyph text.
 
 ---
 
@@ -55,5 +89,3 @@
    - `public/rishi-photo.png`
    - `Profile.png`
    - `sample.docx`, `scorereport.pdf`
-3. **Archived Codebase**:
-   - `archive_portfolio/`: Safe storage of previous React sections and components.
