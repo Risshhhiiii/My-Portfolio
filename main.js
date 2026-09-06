@@ -1457,8 +1457,9 @@ function startCinematicAwakening() {
   playAwakeningSound();
 
   const aboutSec = document.getElementById('about');
-  // Unified single-speed playback across mobile and desktop (3200ms = steady 22 fps)
-  const duration = 3200;
+  const isMobile = window.innerWidth <= 860;
+  // Unified single-speed playback: 3800ms on mobile, 3200ms on desktop (zero speed variations)
+  const duration = isMobile ? 3800 : 3200;
   const startTime = performance.now();
   let hasTriggeredScroll = false;
 
