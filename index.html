@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Rishi Raj Sharma — AI & Product Development Engineer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;800&family=Zen+Kaku+Gothic+New:wght@300;500;900&family=Cinzel:wght@400;700;900&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ══════════ PRELOADER ══════════ -->
+<div class="loader" id="loader">
+  <div class="loader__inner">
+    <div class="loader__glyph">写輪眼</div>
+    <div class="loader__bar"><span id="loaderFill"></span></div>
+    <div class="loader__meta">
+      <span>起動中 / INITIALIZING</span>
+      <span id="loaderPct">00</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ AMBIENT LAYERS ══════════ -->
+<div class="grain" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+<div class="scanlines" aria-hidden="true"></div>
+
+<!-- ══════════ AMATERASU — 黒炎 / BLACK FLAME HEM ══════════ -->
+<div class="amaterasu-bed" aria-hidden="true"></div>
+<canvas class="amaterasu" id="amaterasuCanvas" aria-hidden="true"></canvas>
+
+<!-- ══════════ STORM ══════════ -->
+<div class="storm" aria-hidden="true">
+  <div class="storm__flash" id="stormFlash"></div>
+  <svg class="storm__bolt" id="stormBolt" viewBox="0 0 1000 1000" preserveAspectRatio="none">
+    <path id="boltPath" d="" fill="none" stroke="#fff" stroke-width="2"
+          stroke-linejoin="round" stroke-linecap="round"/>
+    <path id="boltGlow" d="" fill="none" stroke="#9fd8ff" stroke-width="9"
+          stroke-linejoin="round" stroke-linecap="round" opacity=".45"/>
+  </svg>
+</div>
+
+<!-- ══════════ CURSOR ══════════ -->
+<div class="cursor" id="cursor" aria-hidden="true">
+  <div class="cursor-aura"></div>
+  <div class="cursor-dot"></div>
+</div>
+
+<!-- ══════════ FIXED CHROME ══════════ -->
+<header class="chrome">
+  <div class="chrome__mark" id="chromeLogo" style="cursor: pointer;" title="うちはリシ · RISHI RAJ SHARMA">
+    <svg viewBox="0 0 100 100" class="uchiwa" aria-hidden="true">
+      <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M50 12 A38 38 0 0 1 50 88 A19 19 0 0 1 50 50 A19 19 0 0 0 50 12Z" fill="currentColor" opacity=".9"/>
+      <circle cx="50" cy="31" r="6" fill="var(--ink)"/>
+      <circle cx="50" cy="69" r="6" fill="currentColor"/>
+    </svg>
+    <span>RISHI RAJ SHARMA</span>
+  </div>
+  <nav class="chrome__nav">
+    <a href="#about" data-jp="経歴">ABOUT</a>
+    <a href="#eyes" data-jp="能力">SKILLS</a>
+    <a href="#projects" data-jp="術">PROJECTS</a>
+    <a href="#contact" data-jp="交信">CONTACT</a>
+    <a href="/resume.pdf" download="Rishi_Raj_Sharma_Resume.pdf" target="_blank" data-jp="目録" class="nav-resume">RESUME</a>
+    
+    <div class="sound-widget" id="soundWidget">
+      <button class="chrome__sound" id="soundToggle" type="button"
+              aria-pressed="false" title="環境音 / ambient theme">
+        <span class="chrome__sound-jp">音</span>
+        <span class="chrome__sound-state" id="soundState">OFF</span>
+      </button>
+
+      <!-- Volume control popover -->
+      <div class="sound-panel" id="soundPanel" aria-hidden="true">
+        <div class="sound-panel__head">
+          <span class="sound-panel__title">音量設定 · AUDIO</span>
+          <span class="sound-panel__track">うちはイタチ · SENYA</span>
+        </div>
+        <div class="sound-panel__controls">
+          <input type="range" id="volumeSlider" min="0" max="1" step="0.02" value="0.35" class="sound-slider" aria-label="Volume Slider">
+          <span class="sound-panel__val" id="volumeValue">35%</span>
+        </div>
+        <div class="sound-panel__actions">
+          <button type="button" class="sound-btn-mute" id="quickMuteBtn">🔇 MUTE</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="rail rail--left" aria-hidden="true">
+  <span>暁 · AKATSUKI · 木ノ葉隠れの里</span>
+</div>
+<div class="rail rail--right" aria-hidden="true">
+  <span id="railScroll">SCROLL 000%</span>
+</div>
+
+<div class="hint" id="hint" style="display: none; pointer-events: none;" aria-hidden="true">
+  <span class="hint__jp">下へ</span>
+  <span class="hint__line"></span>
+  <span class="hint__en">SCROLL TO OPEN HIS EYES</span>
+</div>
+
+<main>
+
+<!-- ══════════ ACT I — SCROLL SCRUB ══════════ -->
+<section class="scrub" id="scrub">
+  <div class="scrub__sticky">
+    <canvas id="mainCanvas"></canvas>
+    <div class="scrub__glow" id="scrubGlow"></div>
+
+    <!-- phase captions -->
+    <div class="phase" data-phase="0">
+      <h1 class="phase__jp">静寂</h1>
+      <p class="phase__en">SILENCE</p>
+      <p class="phase__sub">「一人で背負うと決めた。」 — He chose to carry it alone.</p>
+    </div>
+    <div class="phase" data-phase="1">
+      <h2 class="phase__jp">覚醒</h2>
+      <p class="phase__en">AWAKENING</p>
+      <p class="phase__sub">「本当の力は、目を開けた者にしか見えない。」</p>
+    </div>
+    <div class="phase" data-phase="2">
+      <h2 class="phase__jp">写輪眼</h2>
+      <p class="phase__en">SHARINGAN</p>
+      <p class="phase__sub">Three tomoe. Nothing escapes them.</p>
+    </div>
+    <div class="phase" data-phase="3">
+      <h2 class="phase__jp">烏</h2>
+      <p class="phase__en">A THOUSAND CROWS</p>
+      <p class="phase__sub">「幻術も、真実も、同じ羽で運ばれる。」</p>
+    </div>
+
+    <!-- ══════════ TSUKUYOMI AWAKENING TYPOGRAPHY (DIRECT OVERLAY, NO BOX) ══════════ -->
+    <div class="tsukuyomi-lockup" id="tsukuyomiLockup">
+      <p class="tsukuyomi-kicker">木ノ葉隠れの里 · 暁</p>
+      <h1 class="tsukuyomi-title">
+        <span class="tsukuyomi-name">RISHI</span>
+        <span class="tsukuyomi-realm">ENTER MY TSUKUYOMI <span class="tsukuyomi-kanji">月読</span></span>
+      </h1>
+      <p class="tsukuyomi-tagline">
+        “You are already within my Genjutsu. Step through the darkness to witness my creations.”
+      </p>
+
+      <div class="tsukuyomi-action">
+        <button class="tsukuyomi-btn" id="enterGenjutsuBtn" type="button" aria-label="Awaken reality">
+          <span class="tsukuyomi-btn__seal">解</span>
+          <span class="tsukuyomi-btn__text">AWAKEN THE REALITY</span>
+        </button>
+      </div>
+
+      <div class="tsukuyomi-hint">
+        <span class="hint-arrow">↓</span>
+        <span>SCROLL TO AWAKEN</span>
+      </div>
+    </div>
+
+    <canvas id="featherCanvas" class="feathers"></canvas>
+  </div>
+</section>
+
+<!-- ══════════ ACT I.V — EDITORIAL ABOUT SECTION (NO BOX, NO PHOTO) ══════════ -->
+<section class="about-editorial" id="about">
+  <div class="about-backdrop-kanji" aria-hidden="true">現実と幻術</div>
+  
+  <div class="about-container">
+    <div class="about-header">
+      <span class="about-num">01</span>
+      <span class="about-label">IDENTITY · 経歴</span>
+      <div class="about-rule"></div>
+    </div>
+
+    <div class="about-main">
+      <h2 class="about-quote">
+        ENGINEERING INTELLIGENT SYSTEMS FROM THE SHADOWS.
+      </h2>
+      
+      <div class="about-identity">
+        <h3 class="about-name">RISHI RAJ <span class="kanji-blood">SHARMA</span></h3>
+        <p class="about-title">AI & PRODUCT DEVELOPMENT ENGINEER · BITM, BALLARI</p>
+      </div>
+
+      <div class="about-grid">
+        <div class="about-col">
+          <h4 class="about-col-title">THE PHILOSOPHY</h4>
+          <p class="about-text">
+            Experienced in machine learning and full-stack development. Skilled in Python, Java, TensorFlow, Spring Boot, and building scalable, data-driven applications.
+          </p>
+          <p class="about-text">
+            Strong problem-solving abilities with an unrelenting focus on developing efficient, intelligent, and product-oriented solutions — turning theoretical neural networks into responsive, production-ready tools.
+          </p>
+          <div class="about-links">
+            <a href="/resume.pdf" download="Rishi_Raj_Sharma_Resume.pdf" class="about-link" target="_blank">
+              <span>DOWNLOAD RESUME (PDF)</span>
+              <span class="about-link-arrow">→</span>
+            </a>
+            <a href="#eyes" class="about-link">
+              <span>EXPLORE SKILLS & JUTSU (EYES)</span>
+              <span class="about-link-arrow">↓</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="about-col">
+          <h4 class="about-col-title">CREDENTIALS & HONORS</h4>
+          <ul class="about-credentials">
+            <li class="cred-item">
+              <span class="cred-badge">B.E. CSE</span>
+              <div class="cred-info">
+                <strong>Ballari Institute of Technology and Management (BITM)</strong>
+                <p>CSE – AI Engineering · 2023 – 2027</p>
+              </div>
+            </li>
+            <li class="cred-item">
+              <span class="cred-badge">CLOUD</span>
+              <div class="cred-info">
+                <strong>AWS Certified Cloud Practitioner</strong>
+                <p>AWS Cloud Architecture & Scalability</p>
+              </div>
+            </li>
+            <li class="cred-item">
+              <span class="cred-badge">SIM</span>
+              <div class="cred-info">
+                <strong>JPMorgan Chase & Co. Software Engineering</strong>
+                <p>Enterprise Job Simulation</p>
+              </div>
+            </li>
+            <li class="cred-item">
+              <span class="cred-badge">FINACLE</span>
+              <div class="cred-info">
+                <strong>Edgeverve (Infosys) Finacle Training</strong>
+                <p>PostgreSQL, Spring Framework, JUnit & JMeter</p>
+              </div>
+            </li>
+            <li class="cred-item">
+              <span class="cred-badge">VISAI '26</span>
+              <div class="cred-info">
+                <strong>16th International Project Competition</strong>
+                <p>AI-based News Sentiment & Classification</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ ACT II — MOUSE-TRACKED EYES WITH SKILLS CONSTELLATION ══════════ -->
+<section class="eyes" id="eyes">
+  <div class="eyes__sticky">
+    <canvas id="eyeCanvas"></canvas>
+    <div class="eyes__flare" id="eyeFlare"></div>
+
+    <div class="eyes__frame">
+      <div class="eyes__label eyes__label--tl">万華鏡写輪眼</div>
+      <div class="eyes__label eyes__label--tr">MANGEKYŌ · LIVE TRACK</div>
+      <div class="eyes__label eyes__label--bl" id="eyeReadout">視線 左 00.0 / FRAME 00</div>
+      <div class="eyes__label eyes__label--br">MOVE CURSOR TO DIRECT HIS GAZE</div>
+    </div>
+
+    <!-- ══════════ TOP-CENTER SKILLS HEAD ══════════ -->
+    <div class="skills-center-head">
+      <span class="skills-kicker">能力 · ARSENAL & CAPABILITIES</span>
+      <h2 class="skills-title">TECHNICAL MASTERY</h2>
+      <p class="skills-sub">AI Systems · Deep Learning · Distributed Architecture · Cloud & QA</p>
+    </div>
+
+    <!-- ══════════ SKILLS & PROJECTS GAZE CONSTELLATION ══════════ -->
+    <div class="gaze-constellation" id="gazeConstellation">
+      <!-- Left side targets (Cursor on left => Gaze looks left) -->
+      <div class="gaze-node gaze-node--tl" data-gaze="0.08">
+        <div class="node-badge"><span class="badge-kanji">術</span> PROJECT</div>
+        <h3 class="node-title">NEWSROOM AI</h3>
+        <p class="node-desc">FastAPI · Gemini API · DistilRoBERTa Emotion NLP · MongoDB</p>
+      </div>
+
+      <div class="gaze-node gaze-node--ml" data-gaze="0.00">
+        <div class="node-badge"><span class="badge-kanji">眼</span> ML & VISION</div>
+        <h3 class="node-title">DEEP LEARNING & CV</h3>
+        <p class="node-desc">TensorFlow · CNNs · OpenCV · Scikit-Learn · NumPy</p>
+      </div>
+
+      <div class="gaze-node gaze-node--bl" data-gaze="0.15">
+        <div class="node-badge"><span class="badge-kanji">核</span> ARCHITECTURE</div>
+        <h3 class="node-title">BACKEND & DATA</h3>
+        <p class="node-desc">Spring Boot · Django · PostgreSQL · MongoDB · Microservices</p>
+      </div>
+
+      <!-- Right side targets (Cursor on right => Gaze looks right) -->
+      <div class="gaze-node gaze-node--tr" data-gaze="0.92">
+        <div class="node-badge"><span class="badge-kanji">術</span> PROJECT</div>
+        <h3 class="node-title">CNN MEDIA PLAYER</h3>
+        <p class="node-desc">Gesture Recognition · Neural Networks · Streamlit · Real-time</p>
+      </div>
+
+      <div class="gaze-node gaze-node--mr" data-gaze="1.00">
+        <div class="node-badge"><span class="badge-kanji">雲</span> CLOUD & QA</div>
+        <h3 class="node-title">AWS & TESTING</h3>
+        <p class="node-desc">AWS Certified · Docker · JMeter · JUnit · Performance</p>
+      </div>
+
+      <div class="gaze-node gaze-node--br" data-gaze="0.85">
+        <div class="node-badge"><span class="badge-kanji">道</span> FOUNDATIONS</div>
+        <h3 class="node-title">CORE & ALGORITHMS</h3>
+        <p class="node-desc">Python · Java · C++ · SQL · DSA · Object-Oriented Design</p>
+      </div>
+    </div>
+
+    <div class="eyes__copy">
+      <h2>其の眼が<span>追う</span></h2>
+      <p>Wherever you place your focus, his Sharingan follows.</p>
+      <p class="eyes__note">Hover over any skill or project above to guide his gaze</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ ACT III — FLAGSHIP INVENTIONS: PROJECTS SHOWCASE (NO BOXES) ══════════ -->
+<section class="projects-editorial" id="projects">
+  <div class="projects-backdrop-kanji" aria-hidden="true">忍術の開発</div>
+
+  <div class="projects-container">
+    <div class="projects-header">
+      <span class="projects-num">03</span>
+      <span class="projects-label">FLAGSHIP INVENTIONS · 禁術の開発</span>
+      <div class="projects-rule"></div>
+    </div>
+
+    <div class="projects-intro">
+      <h2 class="projects-heading">
+        SYSTEMS FORGED IN THE SHADOWS.
+      </h2>
+      <p class="projects-tagline">
+        Architected for low-latency neural inference, resilient distributed scale, and touchless vision interfaces. Each system represents disciplined, production-focused engineering.
+      </p>
+    </div>
+
+    <div class="projects-stream">
+      <!-- ─── PROJECT 01: NEWSROOM AI ─── -->
+      <article class="project-entry" data-project="newsroom">
+        <div class="project-entry__watermark" aria-hidden="true">壱</div>
+        <div class="project-entry__body">
+          <div class="project-entry__meta">
+            <span class="project-badge">AI · NLP &amp; SENTIMENT</span>
+            <span class="project-spec">STATUS: PRODUCTION · LATENCY &lt;140MS</span>
+          </div>
+
+          <h3 class="project-title">
+            NEWSROOM <span class="blood-text">AI</span>
+            <span class="project-title-jp">ニュースルーム AI</span>
+          </h3>
+
+          <p class="project-summary">
+            High-performance natural language processing pipeline designed to ingest multi-source public discussions, analyze emotion polarity across 7 nuanced psychological dimensions using DistilRoBERTa, and generate synthesized executive briefs via the Google Gemini API.
+          </p>
+
+          <div class="project-tech-pills">
+            <span>FastAPI</span>
+            <span>DistilRoBERTa NLP</span>
+            <span>Google Gemini API</span>
+            <span>MongoDB</span>
+            <span>Python</span>
+            <span>Streamlit</span>
+          </div>
+
+          <div class="project-telemetry">
+            <div class="telemetry-item">
+              <span class="telemetry-label">INFERENCE ENGINE</span>
+              <span class="telemetry-val">DistilRoBERTa Multi-Class Classifier</span>
+            </div>
+            <div class="telemetry-item">
+              <span class="telemetry-label">EXECUTIVE SYNTHESIS</span>
+              <span class="telemetry-val">Google Gemini Generative AI</span>
+            </div>
+            <div class="telemetry-item">
+              <span class="telemetry-label">DATA PIPELINE</span>
+              <span class="telemetry-val">FastAPI Async + MongoDB Clusters</span>
+            </div>
+          </div>
+
+          <div class="project-actions">
+            <a href="https://github.com/Risshhhiiii/Comments-Sentiment-Analysis-And-Summarizer---Newsroom-AI" target="_blank" rel="noopener noreferrer" class="project-link-btn">
+              <span class="link-seal">印</span>
+              <span class="link-text">VIEW REPOSITORY ON GITHUB</span>
+              <span class="link-arrow">↗</span>
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <!-- ─── PROJECT 02: DISTRIBUTED MICROSERVICES ─── -->
+      <article class="project-entry" data-project="microservices">
+        <div class="project-entry__watermark" aria-hidden="true">弐</div>
+        <div class="project-entry__body">
+          <div class="project-entry__meta">
+            <span class="project-badge">ARCHITECTURE · SPRING CLOUD</span>
+            <span class="project-spec">DECENTRALIZED · DISTRIBUTED TRACING</span>
+          </div>
+
+          <h3 class="project-title">
+            HOSPITAL MANAGEMENT <span class="blood-text">MICROSERVICES</span>
+            <span class="project-title-jp">分散型マイクロサービス</span>
+          </h3>
+
+          <p class="project-summary">
+            Enterprise-grade decentralized healthcare application architected on Spring Boot and Spring Cloud. Features dynamic Eureka service discovery, a reactive API Gateway with downstream JWT authorization &amp; identity injection, resilient inter-service WebClient communication, and end-to-end Zipkin/Micrometer distributed tracing.
+          </p>
+
+          <div class="project-tech-pills">
+            <span>Spring Boot</span>
+            <span>Spring Cloud Gateway</span>
+            <span>Eureka Discovery</span>
+            <span>PostgreSQL</span>
+            <span>Zipkin &amp; Brave</span>
+            <span>JWT Security</span>
+          </div>
+
+          <div class="project-telemetry">
+            <div class="telemetry-item">
+              <span class="telemetry-label">GATEWAY SECURITY</span>
+              <span class="telemetry-val">Reactive Filter + Header Propagation (Port 9191)</span>
+            </div>
+            <div class="telemetry-item">
+              <span class="telemetry-label">SERVICE REGISTRY</span>
+              <span class="telemetry-val">Eureka Server Dynamic Routing (Port 8761)</span>
+            </div>
+            <div class="telemetry-item">
+              <span class="telemetry-label">OBSERVABILITY</span>
+              <span class="telemetry-val">Micrometer + Zipkin Request Tracing</span>
+            </div>
+          </div>
+
+          <div class="project-actions">
+            <a href="https://github.com/Risshhhiiii/Hospital-Management-System-Using-MicroServices-And-SpringBoot" target="_blank" rel="noopener noreferrer" class="project-link-btn">
+              <span class="link-seal">印</span>
+              <span class="link-text">VIEW REPOSITORY ON GITHUB</span>
+              <span class="link-arrow">↗</span>
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <!-- ─── PROJECT 03: CNN VISION MEDIA PLAYER ─── -->
+      <article class="project-entry" data-project="cnn">
+        <div class="project-entry__watermark" aria-hidden="true">参</div>
+        <div class="project-entry__body">
+          <div class="project-entry__meta">
+            <span class="project-badge">VISION · DEEP LEARNING</span>
+            <span class="project-spec">REAL-TIME 30 FPS · TOUCHLESS HCI</span>
+          </div>
+
+          <h3 class="project-title">
+            CNN VISION <span class="blood-text">MEDIA CONTROLLER</span>
+            <span class="project-title-jp">畳み込みニューラルネット</span>
+          </h3>
+
+          <p class="project-summary">
+            Touchless human-computer interface driven by deep Convolutional Neural Networks and OpenCV. Analyzes live video feeds to segment and recognize dynamic hand gestures, translating physical finger postures directly into real-time media player commands (play, pause, volume modulation, seek) with zero physical contact.
+          </p>
+
+          <div class="project-tech-pills">
+            <span>Python</span>
+            <span>TensorFlow / Keras</span>
+            <span>OpenCV</span>
+            <span>2D CNN Models</span>
+            <span>Computer Vision</span>
+            <span>Real-time Stream</span>
+          </div>
+
+          <div class="project-telemetry">
+            <div class="telemetry-item">
+              <span class="telemetry-label">NEURAL BACKBONE</span>
+              <span class="telemetry-val">Custom 2D Convolutional Net (.h5 / .hdf5)</span>
+            </div>
+            <div class="telemetry-item">
+              <span class="telemetry-label">STREAM PROCESSING</span>
+              <span class="telemetry-val">OpenCV Frame Segmentation (30 FPS)</span>
+            </div>
+            <div class="telemetry-item">
+              <span class="telemetry-label">CONTROL MAPPING</span>
+              <span class="telemetry-val">Touchless Gesture Dispatch Pipeline</span>
+            </div>
+          </div>
+
+          <div class="project-actions">
+            <a href="https://github.com/Risshhhiiii/CNN-Based-Media-Player" target="_blank" rel="noopener noreferrer" class="project-link-btn">
+              <span class="link-seal">印</span>
+              <span class="link-text">VIEW REPOSITORY ON GITHUB</span>
+              <span class="link-arrow">↗</span>
+            </a>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ ACT IV — CONTACT: TRANSMISSION FROM THE SHADOWS (REVEAL CANVAS) ══════════ -->
+<section class="jutsu contact-reveal" id="contact">
+  <!-- background plate revealed under the ghost cursor -->
+  <div class="jutsu__reveal" id="jutsuReveal" aria-hidden="true"></div>
+  <div class="jutsu__rain" aria-hidden="true"></div>
+  <!-- ported reactbits.dev ghost-cursor, raw WebGL -->
+  <canvas class="ghost" id="ghostCanvas" aria-hidden="true"></canvas>
+
+  <div class="jutsu__inner contact-container">
+    <div class="contact-header">
+      <span class="contact-num">04</span>
+      <span class="contact-tag">COMMUNICATION · 交信</span>
+      <div class="contact-rule"></div>
+    </div>
+
+    <div class="contact-grid">
+      <div class="contact-left">
+        <span class="eyebrow">交信 · DISPATCH FROM THE SHADOWS</span>
+        <h2 class="contact-title">
+          SEND A CROW<br>INTO THE DARKNESS.
+        </h2>
+        <p class="contact-desc">
+          Whether you have an ambitious AI system to architect, a product engineering opportunity, or wish to discuss intelligent models — step through the Genjutsu and summon a transmission.
+        </p>
+
+        <div class="contact-channels">
+          <a href="mailto:rishisharma21950@gmail.com" class="channel-item">
+            <span class="channel-icon">✉</span>
+            <div class="channel-text">
+              <span class="channel-label">DIRECT DISPATCH</span>
+              <span class="channel-val">rishisharma21950@gmail.com</span>
+            </div>
+          </a>
+          <a href="tel:+916362987264" class="channel-item">
+            <span class="channel-icon">📞</span>
+            <div class="channel-text">
+              <span class="channel-label">TRANSMISSION FREQUENCY</span>
+              <span class="channel-val">+91 6362987264</span>
+            </div>
+          </a>
+          <a href="https://www.linkedin.com/in/rishi-raj-sharma-9b5168344" target="_blank" rel="noopener noreferrer" class="channel-item">
+            <span class="channel-icon">🔗</span>
+            <div class="channel-text">
+              <span class="channel-label">LINKEDIN PROFILE</span>
+              <span class="channel-val">rishi-raj-sharma-9b5168344</span>
+            </div>
+          </a>
+          <div class="channel-item">
+            <span class="channel-icon">📍</span>
+            <div class="channel-text">
+              <span class="channel-label">STATIONED AT</span>
+              <span class="channel-val">BITM, Ballari, Karnataka, India</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="contact-quote">
+          <p>「自分を認められない者は、決して成功しない。」</p>
+          <cite>— Those who cannot acknowledge their true selves are bound to fail.</cite>
+        </div>
+      </div>
+
+      <div class="contact-right">
+        <form class="scroll-form" id="contactForm">
+          <div class="form-title">
+            <span>通信の巻物</span>
+            <h3>TRANSMIT DISPATCH</h3>
+          </div>
+
+          <div class="form-field">
+            <label for="contactName">YOUR IDENTITY / NAME</label>
+            <input type="text" id="contactName" name="name" placeholder="e.g. Kakashi Hatake" required />
+            <span class="field-line"></span>
+          </div>
+
+          <div class="form-field">
+            <label for="contactEmail">COMMUNICATION CO-ORDINATES / EMAIL</label>
+            <input type="email" id="contactEmail" name="email" placeholder="e.g. name@domain.com" required />
+            <span class="field-line"></span>
+          </div>
+
+          <div class="form-field">
+            <label for="contactMsg">THE DISPATCH / MESSAGE</label>
+            <textarea id="contactMsg" name="message" rows="4" placeholder="Describe the role, project, or alliance..." required></textarea>
+            <span class="field-line"></span>
+          </div>
+
+          <button type="submit" class="transmit-btn">
+            <span class="transmit-seal">印</span>
+            <span class="transmit-text">SUMMON TRANSMISSION</span>
+            <span class="transmit-arrow">→</span>
+          </button>
+          
+          <div class="form-status" id="formStatus"></div>
+        </form>
+      </div>
+    </div>
+
+    <div class="jutsu__foot" style="margin-top: 4rem;">
+      <span>「命を賭して、里を守る。」</span>
+      <span>DISCIPLINE TURNS MODELS INTO REALITY</span>
+    </div>
+  </div>
+
+  <!-- bottom-right anchor -->
+  <div class="jutsu__amaterasu" aria-hidden="true">
+    <span class="jutsu__amaterasu-jp">天照</span>
+    <span class="jutsu__amaterasu-ro">AMATERASU</span>
+    <span class="jutsu__amaterasu-sub">黒炎 · 七日七夜 · 消えぬ火</span>
+  </div>
+</section>
+
+<!-- ══════════ ACT IV — QUOTE ══════════ -->
+<!-- <section class="quote">
+  <div class="quote__jp">許せ、サスケ<span class="dots">…</span></div>
+  <blockquote>
+    <p>“Those who cannot acknowledge their true selves are bound to fail. People live their lives bound by what they accept as correct and true — that's how they define reality.”</p>
+    <cite>うちはイタチ · UCHIHA ITACHI</cite>
+  </blockquote>
+  <div class="quote__mark">これで最後だ</div>
+</section> -->
+
+<!-- ══════════ FOOTER ══════════ -->
+<!-- <footer id="end">
+  <div class="footer__big">木ノ葉の意志</div>
+  <div class="footer__row">
+    <span>WILL OF FIRE</span>
+    <span>六月九日 — 三月二十五日</span>
+    <span>「いつまでも、愛してるよ。」</span>
+  </div>
+</footer> -->
+
+</main>
+
+<!-- ══════════ STICKY BADGE ══════════ -->
+<div class="sticky-badge" id="stickyBadge">
+  <span class="sticky-badge__jp">写輪眼</span>
+  <span class="sticky-badge__en">SHARINGAN</span>
+</div>
+
+<script type="module" src="/main.js"></script>
+</body>
+</html>
