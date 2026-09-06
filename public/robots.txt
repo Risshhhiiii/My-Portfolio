@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://my-portfolio-tau-navy-48.vercel.app/sitemap.xml

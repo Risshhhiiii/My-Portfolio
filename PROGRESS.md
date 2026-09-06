@@ -91,6 +91,11 @@
 - [x] **Cinematic Crows Animation & Awakening Transition Calibration — Checkpoint 7 (2026-09-06)**:
   - **Full Crow Swarm Visibility & Extended Pacing**: Extended the awakening duration to a luxurious 3800ms across mobile and desktop, and pinned the viewport strictly at `y = 0` until `progress >= 0.76` so the entire eye-opening, Sharingan spin, and full crow eruption (frames 53–71) play with majestic cinematic pacing.
   - **Silky Smooth Transition Curve**: Programmed a Hermite smooth cubic easing scroll that gracefully glides down into `#about` over nearly 1 second as the crows disperse; smoothed feather particle fade-out over 650ms; and extended sub-bass synthesis to 4.1s.
+- [x] **Search Engine Optimization (SEO) & Google Indexing Infrastructure — Checkpoint 8 (2026-09-06)**:
+  - Fixed canonical URL and OpenGraph/JSON-LD structured data URLs in `index.html` to point to the live Vercel URL (`https://my-portfolio-tau-navy-48.vercel.app/`), eliminating conflicting canonical signals preventing Google indexing.
+  - Generated `public/robots.txt` allowing full crawler access and declaring sitemap path.
+  - Generated `public/sitemap.xml` listing main website and resume static asset.
+
 
 ---
 
