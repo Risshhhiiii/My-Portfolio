@@ -100,7 +100,7 @@
   - **Eliminated Forced Synchronous Layout Thrashing**: Isolated an Act I Fast-Path within `tick()` when `isAutoScrubbing` is active, bypassing all off-screen `getBoundingClientRect()` queries (Amaterasu, Eye tracking, Jutsu section) and guarding `readScroll()` from recalculating `scrollHeight` on every 16ms frame.
   - **Optimized Phase Overlay Compositing**: Eliminated inline `filter: blur(...)` calculations and dynamic CSS custom property `--y` mutations across phase captions in `paintOverlays()`; replaced with direct GPU opacity and `visibility: hidden/visible` toggling.
   - **Hardware-Accelerated Native Smooth Scroll Transition**: Replaced the 60fps manual JS `window.scrollTo` loop with a single native compositor smooth scroll `window.scrollTo({ top: targetY, behavior: 'smooth' })` triggered at `progress >= 0.76`, allowing the mobile GPU compositor to glide down into `#about` at native 60/120Hz refresh rates.
-  - **Eliminated Document Layout Shift**: Removed `height: 100vh !important` from `body.tsukuyomi-locked` and disabled mobile `backdrop-filter: blur(16px)` on `.about-quote-container` to prevent paint stalls during scroll entry.
+  - **Eliminated Document Layout Shift & Box Artifacts**: Removed `height: 100vh !important` from `body.tsukuyomi-locked`. Completely removed the dark background box, borders, and backdrop-filter from `.about-quote-container` ("ENGINEERING INTELLIGENT SYSTEMS FROM THE SHADOWS."), allowing the Japanese editorial typography to float purely and cleanly over the subtle atmospheric radial gradient without any box container on desktop or mobile.
 
 ---
 
