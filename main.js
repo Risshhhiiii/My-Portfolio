@@ -1428,18 +1428,18 @@ function playAwakeningSound() {
     const subGain = ctx.createGain();
     sub.type = 'sine';
     sub.frequency.setValueAtTime(65, now);
-    sub.frequency.exponentialRampToValueAtTime(28, now + 3.8);
+    sub.frequency.exponentialRampToValueAtTime(28, now + 4.0);
 
     subGain.gain.setValueAtTime(0.001, now);
     subGain.gain.exponentialRampToValueAtTime(0.55, now + 0.18);
-    subGain.gain.exponentialRampToValueAtTime(0.0001, now + 4.0);
+    subGain.gain.exponentialRampToValueAtTime(0.0001, now + 4.2);
 
     sub.connect(subGain);
     subGain.connect(masterGain);
     masterGain.connect(ctx.destination);
 
     sub.start(now);
-    sub.stop(now + 4.1);
+    sub.stop(now + 4.3);
   }
 }
 
@@ -1457,9 +1457,8 @@ function startCinematicAwakening() {
   playAwakeningSound();
 
   const aboutSec = document.getElementById('about');
-  const isMobile = window.innerWidth <= 860;
-  // Unified single-speed playback: 3800ms on mobile, 3200ms on desktop (zero speed variations)
-  const duration = isMobile ? 3800 : 3200;
+  // Unified single-speed playback: 4000ms for both desktop and mobile (zero speed variations)
+  const duration = 4000;
   const startTime = performance.now();
   let hasTriggeredScroll = false;
 

@@ -100,11 +100,12 @@
   - **Eliminated Forced Synchronous Layout Thrashing**: Isolated an Act I Fast-Path within `tick()` when `isAutoScrubbing` is active, bypassing all off-screen `getBoundingClientRect()` queries (Amaterasu, Eye tracking, Jutsu section) and guarding `readScroll()` from recalculating `scrollHeight` on every 16ms frame.
   - **Optimized Phase Overlay Compositing**: Eliminated inline `filter: blur(...)` calculations and dynamic CSS custom property `--y` mutations across phase captions in `paintOverlays()`; replaced with direct GPU opacity and `visibility: hidden/visible` toggling.
 - [x] **Unified Single-Speed Cinematic Awakening Pacing — Checkpoint 10 (2026-09-06)**:
-  - **Single Constant Velocity Pacing**: Replaced the non-linear piecewise easing curve (which caused noticeable accelerations, decelerations, and pauses) with a unified linear single-speed playback rate across all 71 frames on both desktop (`3200ms`, steady 22 fps) and mobile (`3800ms`, steady 18.7 fps).
+  - **Single Constant Velocity Pacing**: Replaced the non-linear piecewise easing curve (which caused noticeable accelerations, decelerations, and pauses) with a unified linear single-speed playback rate across all 71 frames on both desktop and mobile (`duration = 4000ms`, steady 17.75 fps).
   - **Balanced Storytelling Distribution**: Every phase receives equal, natural timing:
-    - Mobile (3800ms): 0.0s – 1.3s eyes opening (`静寂` → `覚醒`), 1.3s – 2.85s Sharingan tomoe focus and spin (`写輪眼`), 2.85s – 3.8s crow dispersion (`烏`) and smooth glide into `#about`.
-    - Desktop (3200ms): 0.0s – 1.1s eyes opening, 1.1s – 2.4s Sharingan tomoe spin, 2.4s – 3.2s crow dispersion and smooth glide into `#about`.
-  - **Synchronized Phase Windows**: Calibrated caption windows (`PHASE_WINDOWS`) and feather emergence (`progress > 0.62`) to precisely align with the unified playback rate.
+    - 0.0s – 1.4s: Gradual eye opening from darkness (`静寂` → `覚醒`).
+    - 1.4s – 3.0s: Hypnotic, steady Sharingan tomoe focus and spin (`写輪眼`).
+    - 3.0s – 4.0s: Explosive crow dispersion across the screen (`烏`), accompanied by forward feather particle flow and native smooth scroll down into `#about`.
+  - **Synchronized Audio & Phase Windows**: Extended Web Audio atmospheric sub-bass pulse to 4.2s to match the 4000ms cinematic sequence; calibrated caption windows (`PHASE_WINDOWS`) and feather emergence (`progress > 0.62`) to precisely align with the unified playback rate.
 
 ---
 
