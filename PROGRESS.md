@@ -117,6 +117,11 @@
     - Configured native momentum scrolling with `-webkit-overflow-scrolling: touch;`, `scroll-padding-top: 5rem;`, and `text-rendering: optimizeLegibility;`.
     - Enhanced in-page navigation anchors with animated, offset-aware smooth scrolling (`window.scrollTo({ behavior: 'smooth' })`) across desktop and mobile, ensuring silky transitions between all sections.
 
+- [x] **Google Search Console Site Verification — Checkpoint 12 (2026-09-06)**:
+  - Created `public/googlede5aab473f4aa278.html` and root `googlede5aab473f4aa278.html` containing verification token `google-site-verification: googlede5aab473f4aa278.html`.
+  - Built and verified production bundling to `dist/googlede5aab473f4aa278.html`.
+  - Deployed to live production site on Vercel (`https://my-portfolio-tau-navy-48.vercel.app/googlede5aab473f4aa278.html`) to ensure persistent verification.
+
 ---
 
 ## Subsystems & Resource Inventory
