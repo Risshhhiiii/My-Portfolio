@@ -95,14 +95,14 @@ Engineered at the intersection of high-performance modern web engineering, mathe
   - **Machine Learning & Deep Learning**: PyTorch, TensorFlow, OpenCV, MediaPipe, DistilRoBERTa, Scikit-Learn.
   - **Cloud & DevOps**: AWS (EC2, S3, IAM, Lambda), Docker, Git, CI/CD pipelines.
   - **Backend & Microservices**: Java, Spring Boot, Spring Cloud, Netflix Eureka, FastAPI, REST APIs, MySQL.
-  - **Languages & Core CS**: Python, Java, JavaScript, TypeScript, C, Data Structures & Algorithms.
+  - **Languages & Core CS**: Python, Java, C++, SQL, JavaScript, Data Structures & Algorithms.
 - **Mobile Zero-Collision Architecture & 100dvh Flow**:
-  - Top cards (`NEWSROOM AI` & `CNN MEDIA PLAYER`) lowered to `top: 18.5%`, providing 100% unobstructed visibility of the header subtitle text (`AI Systems · Deep Learning · Distributed Architecture · Cloud & QA`).
+  - Top cards (`FIN-AI ASSISTANT` & `NEWSROOM AI`) positioned at `top: 18.5%`, providing 100% unobstructed visibility of the header subtitle text (`AI Systems · Deep Learning · Distributed Architecture · Cloud & QA`).
   - Pinned copy (`其の眼が追う` / *"Wherever you place your focus, his Sharingan follows."*) centered and elevated with generous clearance from the floating AI summon orb (`#aiSummonOrb`).
   - Mobile container scaled to `100dvh`, eliminating sticky hold delays so the section scrolls continuously like a normal page.
 
 ### 5. Flagship Inventions & Shinobi Seals (`#projects`)
-- High-contrast editorial showcase featuring large Japanese numeral watermarks (`壱`, `弐`, `参`), live glowing telemetry pulses (`● ACTIVE IN REPO`), interactive Shinobi Tech Pills with hover effects, and direct GitHub links.
+- High-contrast editorial showcase featuring large Japanese numeral watermarks (`壱`, `弐`, `参`, `四`), live glowing telemetry pulses (`● ACTIVE IN REPO`), interactive Shinobi Tech Pills with hover effects, and direct GitHub links.
 
 ### 6. Amaterasu Transmission Seal (`#contact`)
 - Interactive black flame canvas where moving the cursor or dragging fingers across the screen summons raw WebGL black flame smoke particles and crimson embers.
@@ -112,27 +112,37 @@ Engineered at the intersection of high-performance modern web engineering, mathe
 
 ## 🛸 Flagship Technical Inventions
 
-### 壱 · Newsroom AI (Automated Video Intelligence & Sentiment Engine)
+### 壱 · FIN-AI (Voice-First Personal Finance Assistant & SLM Intelligence)
+* **Repository**: [`FinAI---Voice-First-Personal-Finance-Assistant`](https://github.com/Risshhhiiii/FinAI---Voice-First-Personal-Finance-Assistant)
+* **Stack**: Python 3.13 · FastAPI · PostgreSQL 16 · Ollama (Qwen3-1.7B SLM) · Scikit-Learn · Edge-TTS · Docker · Redis
+* **Architecture**:
+  - **The Golden Invariant ("The AI Never Does Math")**: Probabilistic LLMs are strictly intent classifiers and tool calling dispatchers. 100% of balances, interest, and calculations are computed deterministically via Python `decimal.Decimal` and PostgreSQL 16 `NUMERIC(14,2)`, completely eliminating floating-point drift and hallucinated math.
+  - **Quad-Modal Synchronized Engine**: Delivers 4 simultaneous synchronized streams per transaction: spoken neural audio (`en-IN-NeerjaNeural` via Edge-TTS), actionable contextual advice dialog, interactive Proceed Cards (two-phase commit safety gate for state mutations), and real-time dashboard sync with budget alerts (80% amber / 100% red).
+  - **Dual-Brain Hybrid AI**: Private on-device mode via custom fine-tuned Qwen3-1.7B SLM (`finai-v4` via QLoRA, 4-bit GGUF via Ollama in 1.1 GB RAM at ~35 ms/token with 100% multi-turn context retention) paired with Groq Cloud fallback (Llama 3.3 / Whisper Large-v3-Turbo).
+  - **Local CPU Fast-Path**: 3 local scikit-learn models achieving 99.3% categorization accuracy in 1.3 ms and a 39 ms offline query path for frequent balance checks with 0 AI tokens.
+  - **Automated Verification**: Rigorous test suite of **997 Automated Tests** (852 unit + 145 integration) running in 4.21s.
+
+### 弐 · Newsroom AI (Automated Video Intelligence & Sentiment Engine)
 * **Repository**: [`Comments-Sentiment-Analysis-And-Summarizer---Newsroom-AI`](https://github.com/Risshhhiiii/Comments-Sentiment-Analysis-And-Summarizer---Newsroom-AI)
-* **Stack**: FastAPI · DistilRoBERTa NLP · Google Gemini 2.5 API · YouTube Transcript API · Python 3.11
+* **Stack**: FastAPI · DistilRoBERTa NLP · Google Gemini 2.5 API · YouTube Transcript API · Python 3.11 · MongoDB
 * **Architecture**:
   - Ingests multimedia feeds and YouTube URLs to extract unstructured user comment data and closed-caption transcripts.
-  - Passes tokenized text chunks through a fine-tuned Hugging Face `DistilRoBERTa` sentiment model to quantify polarized sentiment distributions in real time.
+  - Passes tokenized text chunks through a fine-tuned Hugging Face `DistilRoBERTa` sentiment model to quantify polarized sentiment distributions in real time (<140ms latency).
   - Feeds aggregated sentiment clusters into Google Gemini LLMs to generate concise executive news summaries, opinion divergence metrics, and public consensus reports.
 
-### 弐 · Hospital Management System (Spring Boot Microservices)
+### 参 · Hospital Management System (Spring Boot Microservices)
 * **Repository**: [`Hospital-Management-System-Using-MicroServices-And-SpringBoot`](https://github.com/Risshhhiiii/Hospital-Management-System-Using-MicroServices-And-SpringBoot)
-* **Stack**: Java 17 · Spring Boot 3 · Spring Cloud Netflix Eureka · Spring API Gateway · JWT · MySQL · Docker
+* **Stack**: Java 17 · Spring Boot 3 · Spring Cloud Netflix Eureka · Spring API Gateway · JWT · PostgreSQL · Docker · Zipkin
 * **Architecture**:
   - Fully decoupled, distributed microservices topology dividing core domains: Patient Records Service, Doctor Scheduling Service, Billing & Invoicing Service, and Notification Dispatcher.
   - Centralized Service Registry powered by **Netflix Eureka** with automated health checks, client-side load balancing, and dynamic failover.
   - Centralized **Spring Cloud API Gateway** enforcing stateless **JWT (JSON Web Token)** authentication, role-based access control (RBAC), and request rate limiting.
 
-### 参 · CNN-Based Media Player (Computer Vision & Gesture Synthesis)
+### 四 · CNN-Based Media Player (Computer Vision & Gesture Synthesis)
 * **Repository**: [`CNN-Based-Media-Player`](https://github.com/Risshhhiiii/CNN-Based-Media-Player)
 * **Stack**: Python 3.10 · OpenCV · 2D Convolutional Neural Networks (CNNs) · MediaPipe · PyAutoGUI
 * **Architecture**:
-  - High-fps real-time video capture pipeline extracting 21 hand landmarks using MediaPipe hand tracking.
+  - High-fps real-time video capture pipeline extracting 21 hand landmarks using MediaPipe hand tracking (30 FPS).
   - Custom-trained 2D CNN classifying discrete static and dynamic hand gestures (Play/Pause palm, Volume dial rotation, Track scrub swipe, Mute fist).
   - Translates classified gestures into OS-level input hardware signals via PyAutoGUI with minimal latency (<15ms per frame inference).
 

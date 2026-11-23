@@ -140,6 +140,21 @@
 
 
 
+- [x] **FIN-AI Major Project Integration & Authentic Skills Alignment — Checkpoint 16 (2026-11-23)**:
+  - **FIN-AI Flagship Integration**:
+    - Analyzed local repository (`C:\Users\ASUS\Desktop\Major Project`) and GitHub repository (`https://github.com/Risshhhiiii/FinAI---Voice-First-Personal-Finance-Assistant`).
+    - Added FIN-AI as Project 01 (`壱`) in `#projects` editorial showcase with full architectural telemetry, Golden Invariant ("The AI Never Does Math"), quad-modal feedback, dual-brain SLM, and 997 pytest suite.
+    - Updated project count to 04 (`壱 FIN-AI`, `弐 NEWSROOM AI`, `参 HOSPITAL MANAGEMENT`, `四 CNN MEDIA CONTROLLER`).
+  - **Resume Refresh**:
+    - Replaced older resume with the latest `Rishi_Sharma_Resume.pdf` (233 KB) across `public/resume.pdf` and `resume sample.pdf`.
+  - **Chatbot & Intelligence Core Alignment**:
+    - Updated `src/knowledge/context.ts` and `src/ai/itachi-ai.ts` with comprehensive FIN-AI intelligence and offline shadow cache telemetry.
+    - Strictly maintained authentic skill set from Rishi's resume (Python, Java, C++, SQL, JavaScript, FastAPI, Spring Boot, Spring Cloud, PostgreSQL, MongoDB, Scikit-Learn, TensorFlow, OpenCV, Ollama, AWS, Docker) with zero unlearned frameworks.
+    - Added Quick Chakra Seal 壱 (`FIN-AI VOICE ASSISTANT`) in `#intelligence`.
+  - **Editorial & Gaze Constellation Polish**:
+    - Updated Technical Mastery gaze constellation: TL card mapped to `FIN-AI ASSISTANT` (`0.08` gaze angle) and TR card mapped to `NEWSROOM AI` (`0.92` gaze angle).
+    - Updated Philosophy telemetry chips: `1.3ms` (Local ML Inference), `997` (Tests Passed), `1.1 GB` (Private SLM RAM), `<140ms` (NLP Latency).
+
 ---
 
 ## Subsystems & Resource Inventory

@@ -215,24 +215,44 @@ async function streamGroq(
 export function getItachiOfflineTelemetry(prompt: string): string {
   const q = prompt.toLowerCase();
 
+  if (q.includes('finai') || q.includes('finance') || q.includes('voice') || q.includes('money') || q.includes('slm') || q.includes('qwen') || q.includes('ollama')) {
+    return `───────────────
+OFFLINE SHADOW CACHE · FIN-AI VOICE ASSISTANT
+───────────────
+The live neural stream is resting. Accessing offline shadow telemetry on Rishi Raj Sharma's flagship major project:
+
+FIN-AI: A VOICE-FIRST PERSONAL FINANCE ASSISTANT (Oct. 2026 – Present)
+• THE GOLDEN INVARIANT: "The AI Never Does Math." LLMs are probabilistic token predictors. 100% of financial math is computed deterministically via Python decimal.Decimal and PostgreSQL 16 NUMERIC(14,2). The AI acts strictly as an Intent Classifier and Tool Dispatcher.
+• QUAD-MODAL FEEDBACK: Spoken neural audio (Edge-TTS), contextual advice, interactive Proceed Cards (two-phase commit safety gate), and live dashboard synchronization with budget alerts.
+• DUAL-BRAIN HYBRID AI: Private Mode (fine-tuned Qwen3-1.7B finai-v4 via QLoRA, 4-bit GGUF via Ollama in 1.1 GB RAM, ~35 ms/token, 100% multi-turn context retention) + Groq cloud fallback (Llama 3.3 + Whisper Large-v3-Turbo).
+• LOCAL CPU FAST-PATH: 3 local scikit-learn models achieving 99.3% accuracy in 1.3 ms for expense categorization and a 39 ms offline fast path for common balance queries (0 AI tokens).
+• VERIFICATION: 997 Automated Tests (852 unit + 145 integration) passing in 4.21s.
+• STACK: Python · FastAPI · PostgreSQL 16 · Qwen3-1.7B · Ollama · Scikit-Learn · Redis · Docker · Edge-TTS
+• REPOSITORY: https://github.com/Risshhhiiii/FinAI---Voice-First-Personal-Finance-Assistant`;
+  }
+
   if (q.includes('project') || q.includes('work') || q.includes('newsroom') || q.includes('microservice') || q.includes('cnn')) {
     return `───────────────
 OFFLINE SHADOW CACHE · PROJECT TELEMETRY
 ───────────────
 The live neural stream is momentarily resting due to rate limits or chakra exhaustion. Accessing offline telemetry on Rishi Raj Sharma's flagship systems:
 
-1. NEWSROOM AI (Sentiment & Summarizer):
+1. FIN-AI (Voice-First Personal Finance Assistant):
+   - Quad-modal feedback engine, dual-brain SLM (finai-v4 Qwen3-1.7B, 1.1 GB RAM), deterministic Python Decimal accounting, and 997 automated tests.
+   - 1.3ms local CPU scikit-learn categorization (99.3% accuracy) + 39ms offline query path.
+
+2. NEWSROOM AI (Sentiment & Summarizer):
    - Ingests public commentary via async FastAPI & MongoDB (<140ms latency).
    - Fine-grained 7-class emotion classification using DistilRoBERTa + Gemini executive brief generation.
 
-2. HOSPITAL MANAGEMENT MICROSERVICES:
+3. HOSPITAL MANAGEMENT MICROSERVICES:
    - Decentralized healthcare architecture on Spring Boot & Spring Cloud.
    - Dynamic Eureka routing (Port 8761), Reactive Gateway (Port 9191), and Zipkin request tracing.
 
-3. CNN TOUCHLESS MEDIA PLAYER:
+4. CNN TOUCHLESS MEDIA PLAYER:
    - Touchless HCI controller streaming live at 30 FPS with OpenCV & deep Convolutional Neural Networks.
 
-4. UCHIHA ITACHI CINEMATIC PORTFOLIO:
+5. UCHIHA ITACHI CINEMATIC PORTFOLIO:
    - WebGL & Canvas cinematic experience featuring Tsukuyomi scroll scrubbing and real-time gaze constellation.
 
 Re-engage the terminal in a moment once live chakra streams replenish.`;
@@ -245,9 +265,10 @@ OFFLINE SHADOW CACHE · ARSENAL & SKILLS
 The live connection is resting. Offline technical telemetry for Rishi Raj Sharma:
 
 - PROGRAMMING: Python, Java, SQL, C++, JavaScript
-- AI & VISION: TensorFlow, Keras, OpenCV, DistilRoBERTa, Sentence-Transformers, Google Gemini API
-- BACKEND & DISTRIBUTED: Spring Boot, Spring Cloud (Eureka, Gateway), FastAPI, PostgreSQL, MongoDB
-- CLOUD & QA: AWS Certified Cloud Practitioner, Docker, Postman, JMeter, JUnit, Git/Linux
+- AI & SLM: Qwen3-1.7B, Ollama, Scikit-Learn, TensorFlow, OpenCV, DistilRoBERTa, Google Gemini API
+- BACKEND & ARCHITECTURE: FastAPI, Spring Boot, Spring Cloud (Eureka, Gateway), Django, REST APIs, Microservices
+- DATABASES & CLOUD: PostgreSQL 16 (Asyncpg), MongoDB, Redis, AWS (Cloud Practitioner, GenAI), Docker
+- TESTING & DEVOPS: 997 Automated Pytests, JUnit, JMeter, Postman, Git/GitHub, Linux/Bash
 - CREDENTIALS: AWS CCP (June 2026), JPMorgan Software Engineering Simulation, Infosys Finacle, VISAI '26
 
 Re-summon your inquiry shortly once the live stream re-establishes.`;
@@ -273,12 +294,12 @@ OFFLINE SHADOW CACHE · RISHI RAJ SHARMA
 ───────────────
 The live neural stream is momentarily recharging due to token traffic. Rishi's core shadow telemetry remains accessible:
 
-Rishi Raj Sharma is an AI & Product Development Engineer at BITM Ballari (2023–2027), forging intelligent systems from the shadows.
+Rishi Raj Sharma is an AI & Product Development Engineer at BITM Ballari (2023–2027), forging intelligent, voice-driven systems and scalable AI products from the shadows.
 
 OVERVIEW:
-- Core Domains: Deep Learning, Distributed Microservices, Cloud Architectures
-- Flagship Systems: Newsroom AI (<140ms), Hospital Management Microservices, CNN Touchless Media Player (30 FPS)
-- Top Credentials: AWS Certified Cloud Practitioner, JPMorgan Chase Software Engineering, Infosys Finacle Training
+- Core Domains: Voice Intelligence, Private SLMs, Distributed Microservices, Cloud Architectures
+- Flagship Systems: FIN-AI (Voice Finance Assistant, 997 tests), Newsroom AI (<140ms), Hospital Management Microservices, CNN Touchless Media Player (30 FPS)
+- Top Credentials: AWS Certified Cloud Practitioner, JPMorgan Chase Software Engineering, Infosys Finacle Training, VISAI '26 Finalist
 
 Re-engage this inquiry in a few moments once the live chakra stream replenishes.`;
 }
